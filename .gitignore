@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+.venv/
+
+# Secrets
+.env
+config.py
+
+# VS Code
+.vscode/
+
+# Ergebnisse
+results/
+*.pddl
