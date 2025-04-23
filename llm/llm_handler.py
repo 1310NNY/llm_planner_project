@@ -1,3 +1,5 @@
+#code, der das Domain Model mithilfe von LLMs neu sortiert
+
 import openai
 from config import OPENAI_API_KEY
 

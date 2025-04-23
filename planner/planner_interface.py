@@ -1,3 +1,4 @@
+# Code, der den AI Planner aufruft (z. B. fast-downward)
 import subprocess
 
 def run_planner(domain_path, problem_path):

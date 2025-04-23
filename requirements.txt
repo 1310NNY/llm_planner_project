@@ -1,1 +1,2 @@
+# → (Pakete, die du brauchst, für pip install)
 openai

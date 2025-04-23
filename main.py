@@ -1,3 +1,10 @@
+#1. Alle PDDL-Domains/Problems in /domain/ finden
+#2. Für jede Domain:
+#    a) Original laufen lassen → Plan + Messwerte
+#    b) Mit LLM reordern → neue Domain speichern
+#    c) Planner auf neue Domain laufen lassen → Plan + Messwerte
+#3. Ergebnisse in CSV speichern
+
 from llm.llm_handler import reorder_with_llm
 from planner.planner_interface import run_planner
 from config import DOMAIN_PATH, PROBLEM_PATH
@@ -16,3 +23,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,11 +1,1 @@
-{
-    "folders": [
-      {
-        "path": "."
-      }
-    ],
-    "settings": {
-      "python.pythonPath": ".venv/bin/python"
-    }
-  }
-  
+
