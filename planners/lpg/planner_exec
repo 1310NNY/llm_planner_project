@@ -1,0 +1,23 @@
+#!/bin/sh
+DOMAIN_FILE=$1
+PROBLEM_FILE=$2
+
+echo "[INFO] Running LPG with:"
+echo "  Domain: $DOMAIN_FILE"
+echo "  Problem: $PROBLEM_FILE"
+
+/opt/lpg/lpg-td/lpg-td \
+  -o "$DOMAIN_FILE" \
+  -f "$PROBLEM_FILE" \
+  -n 1 \
+  -out /workspace/plan.SOL \
+  -cputime 300 \
+  -v off
+
+
+if [ -f /workspace/plan.SOL ]; then
+  echo "[SUCCESS] Plan found and saved to /workspace/plan.SOL."
+else
+  echo "[FAILURE] No plan generated."
+fi
+
