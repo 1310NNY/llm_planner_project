@@ -1,0 +1,15 @@
+#!/bin/sh
+DOMAIN_FILE=$1
+PROBLEM_FILE=$2
+
+echo "[INFO] Running Madagascar (Mp):"
+echo "  Domain: $DOMAIN_FILE"
+echo "  Problem: $PROBLEM_FILE"
+
+/usr/local/bin/madagascar "$DOMAIN_FILE" "$PROBLEM_FILE" > /workspace/madagascar_output.txt
+
+if grep -q "PLAN FOUND" /workspace/madagascar_output.txt; then
+    echo "[SUCCESS] Plan found by Madagascar."
+else
+    echo "[FAILURE] No plan found."
+fi

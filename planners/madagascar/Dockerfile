@@ -2,20 +2,19 @@ FROM ubuntu:22.04
 
 WORKDIR /opt/madagascar
 
-# Systemtools
 RUN apt-get update && apt-get install -y \
     build-essential
 
-# TAR-Datei ins Image kopieren
-COPY planners/madagascar/madagascar.tar .
+# Kopiere Mp-Binary
+COPY planners/madagascar/Mp /usr/local/bin/madagascar
+RUN chmod +x /usr/local/bin/madagascar
 
-# Entpacken (flacher Inhalt)
-RUN tar -xf madagascar.tar && \
-    chmod +x plan && \
-    mv plan /usr/local/bin/madagascar && \
-    rm madagascar.tar
-
-# Arbeitsverzeichnis für PDDL
 WORKDIR /workspace
+
+COPY planners/madagascar/planner_exec /planner_exec
+RUN chmod +x /planner_exec
+
+ENTRYPOINT ["/planner_exec"]
+
 
 

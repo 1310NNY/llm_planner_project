@@ -1,0 +1,12 @@
+#!/bin/sh
+
+DOMAIN_FILE=$1
+PROBLEM_FILE=$2
+
+echo "[INFO] Running LAPKT (siw):"
+echo "  Domain: $DOMAIN_FILE"
+echo "  Problem: $PROBLEM_FILE"
+
+/root/projects/lapkt/compiled_planners/siw \
+  --domain "$DOMAIN_FILE" \
+  --problem "$PROBLEM_FILE"
