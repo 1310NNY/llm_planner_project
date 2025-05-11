@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 WORKDIR /opt/madagascar
 
 RUN apt-get update && apt-get install -y \
-    build-essential
+    build-essential python3
 
 # Kopiere Mp-Binary
 COPY planners/madagascar/Mp /usr/local/bin/madagascar

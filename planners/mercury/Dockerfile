@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Systempakete installieren
 
 RUN apt-get update && apt-get install -y \
-    bison flex gawk g++-multilib pypy unzip wget tar make time
+    bison flex gawk g++-multilib pypy unzip wget tar make time python3
 
 # Arbeitsverzeichnis für Installation
 WORKDIR /opt/mercury

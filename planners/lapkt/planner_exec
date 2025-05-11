@@ -1,12 +1,40 @@
 #!/bin/sh
-
 DOMAIN_FILE=$1
 PROBLEM_FILE=$2
+PLANNER_PATH="/root/projects/lapkt/compiled_planners/siw"
 
 echo "[INFO] Running LAPKT (siw):"
-echo "  Domain: $DOMAIN_FILE"
-echo "  Problem: $PROBLEM_FILE"
+echo "[METRIC] Domain: $DOMAIN_FILE"
+echo "[METRIC] Problem: $PROBLEM_FILE"
 
-/root/projects/lapkt/compiled_planners/siw \
-  --domain "$DOMAIN_FILE" \
-  --problem "$PROBLEM_FILE"
+# Wallclock Startzeit
+START_TIME=$(date +%s.%N)
+
+# Ausführen und gesamten Output speichern
+OUTPUT=$("$PLANNER_PATH" --domain "$DOMAIN_FILE" --problem "$PROBLEM_FILE")
+
+# Wallclock Endzeit
+END_TIME=$(date +%s.%N)
+RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
+
+# Output anzeigen
+echo "$OUTPUT"
+
+# Plan cost extrahieren
+PLAN_COST=$(echo "$OUTPUT" | grep "Plan found with cost:" | awk '{print $5}')
+
+# Interne Laufzeit extrahieren
+RUNTIME_INTERNAL_S=$(echo "$OUTPUT" | grep "Total time:" | awk '{print $3}')
+
+# Ergebnis anzeigen
+if [ -n "$PLAN_COST" ]; then
+    echo "[RESULT] STATUS: SUCCESS"
+    echo "[METRIC] PlanCost: $PLAN_COST"
+else
+    echo "[RESULT] STATUS: FAILURE"
+    echo "[METRIC] PlanCost: N/A"
+fi
+
+# Laufzeiten ausgeben
+echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL_S"
+echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL_S"

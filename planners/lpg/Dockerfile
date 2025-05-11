@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Systempakete installieren
 RUN apt-get update && apt-get install -y \
-    build-essential wget unzip tar make
+    build-essential wget unzip tar make python3
 
 # Arbeitsverzeichnis für die Installation
 WORKDIR /opt/lpg
