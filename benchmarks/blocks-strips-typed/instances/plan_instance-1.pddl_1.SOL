@@ -1,11 +1,11 @@
 
 ; Version LPG-td-1.4
-; Seed 98804743
-; Command line: /opt/lpg/lpg-td/lpg-td -o /pddl/domain.pddl -f /pddl/p01.pddl -n 1 -cputime 300 -v off 
-; Problem /pddl
+; Seed 11944417
+; Command line: /opt/lpg/lpg-td/lpg-td -o /pddl/domain.pddl -f /pddl/instances/instance-1.pddl -n 1 -cputime 300 -v off 
+; Problem /pddl/instances
 ; Actions having STRIPS duration
-; Time 0.28
-; Search time 0.26
+; Time 0.33
+; Search time 0.32
 ; Parsing time 0.01
 ; Mutex time 0.00
 ; NrActions 10
