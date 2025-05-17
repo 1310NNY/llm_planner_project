@@ -1,9 +1,9 @@
 FROM lapkt/lapkt-public
 
-# Setze Arbeitsverzeichnis
+# Set workspace
 WORKDIR /workspace
 
-# Kopiere Exec-Skript in Container
+# Copy Exec in Container
 COPY planners/lapkt/planner_exec /planner_exec
 RUN chmod +x /planner_exec
 

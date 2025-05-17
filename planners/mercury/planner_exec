@@ -8,24 +8,18 @@ echo "[INFO] Running Mercury:"
 echo "  Domain: $DOMAIN_FILE"
 echo "  Problem: $PROBLEM_FILE"
 
-# Starte den Planner und messe Wall Clock Time
 START_TIME=$(date +%s.%N)
 OUTPUT=$($PLANNER_PATH "$DOMAIN_FILE" "$PROBLEM_FILE" $PLAN_FILE 2>&1)
 END_TIME=$(date +%s.%N)
 
-# Wall Clock Zeit berechnen
 RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 
-# Ausgabe anzeigen
 echo "$OUTPUT"
 
-# Plan cost extrahieren
 PLAN_COST=$(echo "$OUTPUT" | grep "Plan cost:" | awk '{print $3}')
 
-# Interne Zeit aus dem Output extrahieren (z. B. "Total time: 0.09s")
 RUNTIME_INTERNAL_S=$(echo "$OUTPUT" | grep "Total time:" | awk '{print $3}' | tr -d 's')
 
-# Ergebnis bewerten
 if echo "$OUTPUT" | grep -q "Solution found"; then
     echo "[RESULT] STATUS: SUCCESS"
     echo "[METRIC] PlanCost: $PLAN_COST"
@@ -34,6 +28,5 @@ else
     echo "[METRIC] PlanCost: N/A"
 fi
 
-# Zeiten ausgeben
 echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL_S"
 echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL_S"

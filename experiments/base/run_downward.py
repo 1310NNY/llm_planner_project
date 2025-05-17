@@ -5,7 +5,7 @@ import pandas as pd
 def run_downward(domain_file, problem_file):
     benchmark_dir = os.path.abspath(os.path.dirname(domain_file))
     
-    # Relativer Pfad zur Problemdatei im Docker-Container
+    # Relative path to instance 
     problem_rel = os.path.relpath(problem_file, benchmark_dir).replace("\\", "/")
 
     docker_cmd = [
@@ -22,7 +22,7 @@ def run_downward(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300  # 5 Minuten für Agile Track
+            timeout=300  
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -40,7 +40,6 @@ def run_downward(domain_file, problem_file):
             "Status": "FAILURE"
         }
 
-    # Metriken extrahieren
     metrics = {
         "PlanCost": None,
         "Runtime_wall_s": None,
@@ -69,12 +68,12 @@ def run_downward(domain_file, problem_file):
 
     return metrics
 
-# Für manuellen Test direkt in VS Code
+# for manual tests 
 if __name__ == "__main__":
     
     domain = "benchmarks/blocks-strips-typed/domain.pddl"
     problem = "benchmarks/blocks-strips-typed/instances/instance-1.pddl"
 
     result = run_downward(domain, problem)
-    print("\nErgebnis:")
+    print("\nResult:")
     print(result)

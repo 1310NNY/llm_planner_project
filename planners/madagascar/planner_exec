@@ -6,23 +6,20 @@ echo "[INFO] Running Madagascar (Mp):"
 echo "[INFO]   Domain: $DOMAIN_FILE"
 echo "[INFO]   Problem: $PROBLEM_FILE"
 
-# Starte den Planner und messe Wall-Clock-Zeit
+# Start Planner and Wall-Clock
 START_TIME=$(date +%s.%N)
 OUTPUT=$(/usr/local/bin/madagascar "$DOMAIN_FILE" "$PROBLEM_FILE")
 END_TIME=$(date +%s.%N)
 
-# Berechne Wallclock-Zeit in Sekunden (z. B. 0.018430)
+
 RUNTIME_WALL=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 
 echo "$OUTPUT"
 
-# PlanCost aus "X actions in the plan." extrahieren
 PLAN_COST=$(echo "$OUTPUT" | grep -Po '^\d+(?= actions in the plan\.)')
 
-# Interne Laufzeit (total time X.XXXX)
 RUNTIME_INTERNAL=$(echo "$OUTPUT" | grep "total time" | awk '{print $3}')
 
-# Erfolg prüfen & ausgeben
 if echo "$OUTPUT" | grep -q "PLAN FOUND"; then
     echo "[RESULT] STATUS: SUCCESS"
     echo "[METRIC] PlanCost: $PLAN_COST"
@@ -31,6 +28,5 @@ else
     echo "[METRIC] PlanCost: N/A"
 fi
 
-# Zeiten ausgeben
 echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL"
 echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL"

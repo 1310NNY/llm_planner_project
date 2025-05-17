@@ -5,7 +5,7 @@ WORKDIR /opt/madagascar
 RUN apt-get update && apt-get install -y \
     build-essential python3
 
-# Kopiere Mp-Binary
+# copy mp binary
 COPY planners/madagascar/Mp /usr/local/bin/madagascar
 RUN chmod +x /usr/local/bin/madagascar
 

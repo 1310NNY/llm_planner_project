@@ -15,10 +15,10 @@ def run_all_madagascar():
         instances_path = os.path.join(domain_path, "instances")
 
         if not os.path.isfile(domain_file):
-            print(f"[WARN] Keine domain.pddl in {domain_path}")
+            print(f"[WARN] No domain.pddl in {domain_path}")
             continue
         if not os.path.isdir(instances_path):
-            print(f"[WARN] Kein 'instances/'-Ordner in {domain_path}")
+            print(f"[WARN] No 'instances/'-Ordner in {domain_path}")
             continue
 
         for file in sorted(os.listdir(instances_path)):

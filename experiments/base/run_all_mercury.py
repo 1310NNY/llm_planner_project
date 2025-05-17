@@ -15,17 +15,16 @@ def run_all_mercury():
         instances_path = os.path.join(domain_path, "instances")
 
         if not os.path.isfile(domain_file):
-            print(f"[WARN] Keine domain.pddl in {domain_path}")
+            print(f"[WARN] No domain.pddl in {domain_path}")
             continue
         if not os.path.isdir(instances_path):
-            print(f"[WARN] Kein 'instances/'-Ordner in {domain_path}")
+            print(f"[WARN] No 'instances/'-Ordner in {domain_path}")
             continue
 
         for file in sorted(os.listdir(instances_path)):
             if file.endswith(".pddl"):
                 problem_file = os.path.join(instances_path, file)
                 
-                # Fortschrittsanzeige
                 print(f"[INFO] Running planner on:")
                 print(f"  Domain: {domain_folder}")
                 print(f"  Problem: {file}")

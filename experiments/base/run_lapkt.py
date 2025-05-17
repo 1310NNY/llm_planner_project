@@ -38,7 +38,6 @@ def run_lapkt(domain_file, problem_file):
             "Status": "FAILURE"
         }
 
-    # Metriken extrahieren
     metrics = {
         "PlanCost": None,
         "Runtime_wall_s": None,
@@ -67,11 +66,10 @@ def run_lapkt(domain_file, problem_file):
 
     return metrics
 
-# Für manuellen Test direkt in VS Code
 if __name__ == "__main__":
     domain = "benchmarks/blocks-strips-typed/domain.pddl"
     problem = "benchmarks/blocks-strips-typed/instances/instance-1.pddl"
 
     result = run_lapkt(domain, problem)
-    print("\nErgebnis:")
+    print("\nResult:")
     print(result)

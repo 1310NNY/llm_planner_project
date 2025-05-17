@@ -6,7 +6,7 @@ echo "[INFO] Running LPG:"
 echo "  Domain: $DOMAIN_FILE"
 echo "  Problem: $PROBLEM_FILE"
 
-# Starte Wallclock-Zeitmessung
+# Start Wallclock
 START_TIME=$(date +%s.%N)
 
 /opt/lpg/lpg-td/lpg-td \
@@ -16,11 +16,11 @@ START_TIME=$(date +%s.%N)
     -cputime 300 \
     -v off > /workspace/lpg_output.txt
 
-# Wallclock-Endzeit
+# Wallclock-End
 END_TIME=$(date +%s.%N)
 RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 
-# Extrahiere PlanCost und interne Laufzeit
+# Extrahct plancost and total time
 PLAN_COST=$(grep "Actions:" /workspace/lpg_output.txt | awk '{print $2}')
 RUNTIME_INTERNAL_S=$(grep "Total time:" /workspace/lpg_output.txt | awk '{print $3}')
 
