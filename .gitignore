@@ -9,9 +9,12 @@ __pycache__/
 .env
 config.py
 
-# VS Code
+# Code
 .vscode/
 
-# Ergebnisse
+# Ignore only the large cloned repo inside downward/
+planners/downward/downward/
+
+# Results
 results/
 *.pddl
