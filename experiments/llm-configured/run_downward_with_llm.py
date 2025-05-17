@@ -137,7 +137,6 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
     results = []
     llm_start_time = time.time()
 
-    # Generate domain once
     with open(domain_file, "r") as f:
         domain_content = f.read()
 
@@ -156,7 +155,6 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
 
     semantic_metrics = detect_semantic_differences(original_blocks, modified_blocks)
 
-    # Save modified domain in same folder as original domain
     benchmark_dir = os.path.dirname(domain_file)
     domain_filename = build_output_filename(model, prompt_path, planner, domain_file)
     domain_path = os.path.join(benchmark_dir, domain_filename)
@@ -204,7 +202,8 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
     df = pd.DataFrame(results)
     if output_csv:
         os.makedirs(os.path.dirname(output_csv), exist_ok=True)
-        df.to_csv(output_csv, index=False)
+        write_header = not os.path.exists(output_csv)
+        df.to_csv(output_csv, mode='a', header=write_header, index=False)
         print(f"[INFO] Results saved to: {output_csv}")
     return df
 
@@ -212,9 +211,11 @@ if __name__ == "__main__":
     domain_file = "benchmarks/blocks-strips-typed copy/domain.pddl"
     instance_path = "benchmarks/blocks-strips-typed copy/instances/instance-1.pddl"
     prompt_file = "prompts/reorder_prompt_vallati.txt"
-    output_csv = "results/benchmark_results.csv"
     model = "gpt-4"
     planner = "downward"
+
+    prompt_id = os.path.splitext(os.path.basename(prompt_file))[0]
+    output_csv = f"results/{planner}_{model}_{prompt_id}_results.csv"
 
     all_results = run_for_all_instances(
         domain_file,
