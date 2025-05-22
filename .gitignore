@@ -13,7 +13,7 @@ config.py
 # Code
 .vscode/
 
-# Ignore only the large cloned repo inside downward/
+# Ignore the large cloned repo inside downward/
 planners/downward/downward/
 
 # Results

@@ -18,7 +18,7 @@ def run_all_downward():
             print(f"[WARN] No domain.pddl in {domain_path}")
             continue
         if not os.path.isdir(instances_path):
-            print(f"[WARN] No 'instances/'-Ordner in {domain_path}")
+            print(f"[WARN] No 'instances/'-folder in {domain_path}")
             continue
 
         for file in sorted(os.listdir(instances_path)):

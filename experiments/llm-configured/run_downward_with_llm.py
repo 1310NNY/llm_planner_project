@@ -14,6 +14,7 @@ sys.path.insert(0, project_root)
 
 # Import run_downward (assumed to be in experiments/base/)
 from experiments.base.run_downward import run_downward
+#what if dont find?
 
 client = OpenAI()
 
@@ -53,13 +54,6 @@ def compare_reordering(dict1, dict2):
         eff_total += sum(a != b for a, b in zip(eff1, eff2))
     return pre_total, eff_total
 
-def compute_structural_diff(original, modified):
-    diff = list(unified_diff(
-        original.strip().splitlines(),
-        modified.strip().splitlines(),
-        lineterm=''
-    ))
-    return len(diff)
 
 def detect_semantic_differences(original_blocks, modified_blocks):
     action_changes = 0
@@ -107,6 +101,7 @@ def build_output_filename(llm_model, prompt_path, planner, domain_file):
     return f"{domain_group}_domain_{llm_model}_{prompt_id}_{planner}_{timestamp}.pddl"
 
 def optimize_domain_with_llm(domain_content, prompt_path, model="gpt-4"):
+    full_start = time.time()
     prompt = load_prompt_template(prompt_path, domain_content)
 
     api_start = time.time()
@@ -118,6 +113,7 @@ def optimize_domain_with_llm(domain_content, prompt_path, model="gpt-4"):
         ]
     )
     api_end = time.time()
+    full_end = time.time()
 
     content = response.choices[0].message.content
     usage = response.usage
@@ -126,6 +122,7 @@ def optimize_domain_with_llm(domain_content, prompt_path, model="gpt-4"):
         "modified_domain": content,
         "model": model,
         "api_duration": round(api_end - api_start, 3),
+        "full_duration": round(full_end - full_start, 3),
         "tokens_prompt": usage.prompt_tokens,
         "tokens_completion": usage.completion_tokens,
         "tokens_total": usage.total_tokens,
@@ -151,7 +148,6 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
 
     reorder_distance = compare_order(original_order, modified_order)
     pre_diff, eff_diff = compare_reordering(original_blocks, modified_blocks)
-    content_diff = compute_structural_diff(domain_content, modified_domain)
 
     semantic_metrics = detect_semantic_differences(original_blocks, modified_blocks)
 
@@ -162,7 +158,7 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
     with open(domain_path, "w") as f:
         f.write(modified_domain)
 
-    print(f"[INFO] Reused modified domain: {domain_path}")
+    print(f"[INFO] Modified domain: {domain_path}")
 
     def extract_number(filename):
         match = re.search(r'(\d+)', filename)
@@ -175,9 +171,7 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
 
     for filename in instance_files:
         instance_path = os.path.join(instances_folder, filename)
-        inst_start = time.time()
         result = run_downward(domain_path, instance_path)
-        inst_end = time.time()
 
         result.update({
             "DomainFile": os.path.basename(domain_path),
@@ -186,14 +180,13 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
             "Prompt_ID": os.path.splitext(os.path.basename(prompt_path))[0],
             "Planner": planner,
             "LLM_API_Time_s": llm_result["api_duration"],
-            "Total_Execution_Time_s": round(inst_end - llm_start_time, 3),
+            "LLM_API_Time_with_Preproccess_s": llm_result["full_duration"],
             "Tokens_Total": llm_result["tokens_total"],
             "Prompt_Length_Chars": llm_result["prompt_length_chars"],
             "Completion_Length_Chars": llm_result["completion_length_chars"],
             "Action_Reorder_Distance": reorder_distance,
             "Precondition_Reorder_Distance": pre_diff,
             "Effect_Reorder_Distance": eff_diff,
-            "Line_Diff_Count": content_diff,
             **semantic_metrics
         })
 

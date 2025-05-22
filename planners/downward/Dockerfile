@@ -21,3 +21,5 @@ RUN chmod +x /planner_exec
 
 # Entry point set
 ENTRYPOINT ["/planner_exec"]
+
+

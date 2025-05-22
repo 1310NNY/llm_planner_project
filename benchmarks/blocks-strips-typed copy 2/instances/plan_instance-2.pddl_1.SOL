@@ -1,0 +1,30 @@
+
+; Version LPG-td-1.4
+; Seed 18844408
+; Command line: /opt/lpg/lpg-td/lpg-td -o /pddl/domain.pddl -f /pddl/instances/instance-2.pddl -n 1 -cputime 300 -v off 
+; Problem /pddl/instances
+; Actions having STRIPS duration
+; Time 0.11
+; Search time 0.09
+; Parsing time 0.02
+; Mutex time 0.00
+; NrActions 18
+
+0:   (UNSTACK B C) [1]
+1:   (PUT-DOWN B) [1]
+2:   (UNSTACK C A) [1]
+3:   (STACK C B) [1]
+4:   (UNSTACK A D) [1]
+5:   (PUT-DOWN A) [1]
+6:   (UNSTACK C B) [1]
+7:   (PUT-DOWN C) [1]
+8:   (PICK-UP D) [1]
+9:   (STACK D C) [1]
+10:   (PICK-UP A) [1]
+11:   (STACK A B) [1]
+12:   (UNSTACK D C) [1]
+13:   (PUT-DOWN D) [1]
+14:   (PICK-UP C) [1]
+15:   (STACK C A) [1]
+16:   (PICK-UP D) [1]
+17:   (STACK D C) [1]
