@@ -77,3 +77,5 @@ if __name__ == "__main__":
     result = run_downward(domain, problem)
     print("\nResult:")
     print(result)
+
+#'experiments/base/run_downward.py
