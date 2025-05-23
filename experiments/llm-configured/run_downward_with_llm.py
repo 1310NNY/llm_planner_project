@@ -6,6 +6,7 @@ import pandas as pd
 from openai import OpenAI
 from difflib import unified_diff
 from datetime import datetime
+from dotenv import load_dotenv
 
 # Automatically detect project root
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +17,9 @@ sys.path.insert(0, project_root)
 from experiments.base.run_downward import run_downward
 #what if dont find?
 
-client = OpenAI()
+load_dotenv()
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
 def extract_action_order(domain_text):
     return re.findall(r'\(:action\s+(\w+)', domain_text)
@@ -201,8 +204,8 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
     return df
 
 if __name__ == "__main__":
-    domain_file = "benchmarks/blocks-strips-typed copy/domain.pddl"
-    instance_path = "benchmarks/blocks-strips-typed copy/instances/instance-1.pddl"
+    domain_file = "benchmarks/blocks-strips-typed-copy/domain.pddl"
+    instance_path = "benchmarks/blocks-strips-typed-copy/instances/instance-1.pddl"
     prompt_file = "prompts/reorder_prompt_vallati.txt"
     model = "gpt-4"
     planner = "downward"
