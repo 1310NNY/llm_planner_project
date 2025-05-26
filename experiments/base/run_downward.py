@@ -22,7 +22,7 @@ def run_downward(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300  
+            timeout=1800  #300 vorher
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -71,10 +71,8 @@ def run_downward(domain_file, problem_file):
 # for manual tests 
 if __name__ == "__main__":
     
-    domain = "benchmarks/blocks-strips-typed-copy/domain.pddl"
-    problem = "benchmarks/blocks-strips-typed-copy/instances/instance-1.pddl"
-
-
+    domain = "benchmarks/barman-sequential-agile/domain.pddl"
+    problem = "benchmarks/barman-sequential-agile/instances/instance-1.pddl"
     result = run_downward(domain, problem)
     print("\nResult:")
     print(result)
