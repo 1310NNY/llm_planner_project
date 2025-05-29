@@ -9,6 +9,8 @@ def run_lpg(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
+        "--cpus=1.0",           # Nur 1 vCPU
+        "--memory=8g",          # Maximal 8 GB RAM
         "-v", f"{benchmark_dir}:/pddl",
         "lpg_planner",
         "/pddl/" + os.path.basename(domain_file),
@@ -21,7 +23,7 @@ def run_lpg(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300  
+            timeout=1800  
         )
         output = result.stdout
     except subprocess.TimeoutExpired:

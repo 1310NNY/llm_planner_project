@@ -10,6 +10,8 @@ def run_downward(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
+        "--cpus=1.0",           # Nur 1 vCPU
+        "--memory=8g",          # Maximal 8 GB RAM
         "-v", f"{benchmark_dir}:/pddl",
         "downward_planner",
         "/pddl/" + os.path.basename(domain_file),

@@ -20,4 +20,5 @@ planners/downward/downward/
 results/
 *.pddl
 *.SOL
+*.log
 
