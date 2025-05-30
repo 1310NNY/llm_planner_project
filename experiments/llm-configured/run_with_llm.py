@@ -14,7 +14,7 @@ import time
 # 🔧 Konfiguration
 domain_file = Path("benchmarks/blocks-strips-typed copy 2/domain.pddl")
 instances_dir = domain_file.parent / "instances"
-planner = "downward"
+planner = "mercury"
 llm_name = "gpt-4"
 prompt_style = "zero_shot"
 
