@@ -1,10 +1,9 @@
 from .openai_gpt import OpenAIGPT
-from .anthropic_claude import AnthropicClaude
 
 def get_llm_model(name: str):
     if name == "gpt-4":
         return OpenAIGPT(model="gpt-4")
-    elif name == "claude":
-        return AnthropicClaude()
+    elif name == "gpt-3.5":
+        return OpenAIGPT(model="gpt-3.5-turbo")
     else:
-        raise ValueError(f"Unknown LLM: {name}")
+        raise ValueError(f"Unknown LLM model: {name}")
