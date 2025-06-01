@@ -2,9 +2,12 @@ import subprocess
 from pathlib import Path
 import pandas as pd
 
-def run_lapkt(domain_file: Path, problem_file: Path):
+def run_lapkt(domain_file, problem_file):
+    domain_file = Path(domain_file)
+    problem_file = Path(problem_file)
+
     benchmark_dir = domain_file.parent.resolve()
-    problem_rel = problem_file.relative_to(benchmark_dir).as_posix()
+    problem_rel = problem_file.resolve().relative_to(benchmark_dir).as_posix()
 
     docker_cmd = [
         "docker", "run", "--rm",

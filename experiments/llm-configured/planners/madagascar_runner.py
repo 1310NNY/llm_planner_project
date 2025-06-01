@@ -2,11 +2,12 @@ import subprocess
 from pathlib import Path
 import pandas as pd
 
-def run_madagascar(domain_file: Path, problem_file: Path):
-    benchmark_dir = domain_file.parent.resolve()
+def run_madagascar(domain_file, problem_file):
+    domain_file = Path(domain_file)
+    problem_file = Path(problem_file)
 
-    # relativer Pfad von problem zur domain
-    problem_rel = problem_file.relative_to(benchmark_dir).as_posix()
+    benchmark_dir = domain_file.parent.resolve()
+    problem_rel = problem_file.resolve().relative_to(benchmark_dir).as_posix()
 
     docker_cmd = [
         "docker", "run", "--rm",
@@ -72,7 +73,7 @@ def run_madagascar(domain_file: Path, problem_file: Path):
 
 # Optional: Testlauf
 if __name__ == "__main__":
-    domain = Path("benchmarks/barman-sequential-agile/domain.pddl")
-    problem = Path("benchmarks/barman-sequential-agile/instances/instance-1.pddl")
+    domain = Path("benchmarks/benchmarks/test/domain.pddl")
+    problem = Path("benchmarks/benchmarks/test/instances/instance-1.pddl")
     result = run_madagascar(domain, problem)
     print(result)

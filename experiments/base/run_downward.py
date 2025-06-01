@@ -73,8 +73,8 @@ def run_downward(domain_file, problem_file):
 # for manual tests 
 if __name__ == "__main__":
     
-    domain = "benchmarks/barman-sequential-agile/domain.pddl"
-    problem = "benchmarks/barman-sequential-agile/instances/instance-1.pddl"
+    domain = "benchmarks/test/domain.pddl"
+    problem = "benchmarks/test/instances/instance-1.pddl"
     result = run_downward(domain, problem)
     print("\nResult:")
     print(result)

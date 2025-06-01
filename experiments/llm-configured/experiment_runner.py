@@ -1,68 +1,72 @@
-from llms import get_llm_model
-from planners import get_planner_runner
-from prompts import get_prompt_function
-from utils.validity import is_valid_with_val
-from pathlib import Path
 import time
+from pathlib import Path
+from llms import get_llm_model
+from prompts import get_prompt
+from planners import get_planner_runner
+from utils.validity import is_valid_with_val
 
 def run_experiment(domain_file, problem_file, planner, llm_name, prompt_style, skip_llm=False):
-    domain_path = Path(domain_file).resolve()
-    problem_path = Path(problem_file).resolve()
+    domain_path = Path(domain_file)
+    problem_path = Path(problem_file)
+    domain_str = domain_path.read_text()
 
     if skip_llm:
-        # 🟢 Domain bereits generiert, LLM überspringen
-        planner_fn = get_planner_runner(planner)
-        planner_result = planner_fn(domain_path, problem_path)
-
-        return {
-            "Domain": domain_path.name,
-            "Problem": problem_path.name,
-            "Planner": planner,
-            "LLM_Model": llm_name,
-            "Prompt_ID": prompt_style,
-            **planner_result
+        # Domain wurde schon generiert & gespeichert
+        llm_result = {
+            "response": domain_str,
+            "api_time": 0.0,
+            "tokens_total": None,
+            "prompt_length_chars": None,
+            "completion_length_chars": None,
         }
+        modified_domain_str = domain_str
+        t_llm = 0.0
+    else:
+        # Prompt erzeugen & LLM aufrufen
+        prompt_fn = get_prompt(prompt_style)
+        prompt = prompt_fn(domain_str)
+        llm = get_llm_model(llm_name)
 
-    # 🔁 Sonst: LLM generiert Domain (Einzelfall)
-    with open(domain_path, "r") as f:
-        original_domain = f.read()
+        t0 = time.time()
+        llm_result = llm.generate(prompt)
+        t_llm = time.time() - t0
+        modified_domain_str = llm_result["response"]
 
-    prompt_fn = get_prompt_function(prompt_style)
-    prompt_string = prompt_fn(original_domain)
+        # Neue Domain speichern (eigener Name optional hier)
+        domain_path = domain_path.parent / f"domain_llm_{llm_name.replace('-', '')}_{prompt_style}.pddl"
+        domain_path.write_text(modified_domain_str)
 
-    llm = get_llm_model(llm_name)
-    start_llm = time.time()
-    generated_domain = llm.generate(prompt_string)
-    end_llm = time.time()
-
-    llm_api_time = round(end_llm - start_llm, 4)
-
-    if not is_valid_with_val(generated_domain, problem_path):
+    # ✅ Validierung
+    is_valid = is_valid_with_val(modified_domain_str, str(problem_path))
+    if not is_valid:
         return {
-            "Domain": domain_path.name,
-            "Problem": problem_path.name,
+            "DomainFile": str(domain_path),
+            "ProblemFile": str(problem_path),
             "Planner": planner,
             "LLM_Model": llm_name,
             "Prompt_ID": prompt_style,
-            "LLM_API_Time_s": llm_api_time,
+            "LLM_API_Time_s": llm_result["api_time"],
+            "LLM_API_Time_with_Preproccess_s": t_llm,
+            "Tokens_Total": llm_result["tokens_total"],
+            "Prompt_Length_Chars": llm_result["prompt_length_chars"],
+            "Completion_Length_Chars": llm_result["completion_length_chars"],
             "Status": "INVALID_DOMAIN"
         }
 
-    # Temporäre Domain speichern
-    tmp_path = domain_path.parent / f"tmp_domain_llm.pddl"
-    with open(tmp_path, "w") as f:
-        f.write(generated_domain)
-
+    # 🧠 Planer aufrufen
     planner_fn = get_planner_runner(planner)
-    planner_result = planner_fn(tmp_path, problem_path)
-    tmp_path.unlink(missing_ok=True)
+    planner_result = planner_fn(str(domain_path), str(problem_path))
 
     return {
-        "Domain": domain_path.name,
-        "Problem": problem_path.name,
+        **planner_result,
+        "DomainFile": str(domain_path),
+        "ProblemFile": str(problem_path),
         "Planner": planner,
         "LLM_Model": llm_name,
         "Prompt_ID": prompt_style,
-        "LLM_API_Time_s": llm_api_time,
-        **planner_result
+        "LLM_API_Time_s": llm_result["api_time"],
+        "LLM_API_Time_with_Preproccess_s": t_llm,
+        "Tokens_Total": llm_result["tokens_total"],
+        "Prompt_Length_Chars": llm_result["prompt_length_chars"],
+        "Completion_Length_Chars": llm_result["completion_length_chars"],
     }
