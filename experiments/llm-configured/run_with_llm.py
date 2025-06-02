@@ -15,7 +15,10 @@ domain_file = Path("benchmarks/test/domain.pddl")
 instances_dir = domain_file.parent / "instances"
 planner = "mercury"
 llm_name = "gpt-4"
-prompt_style = "cot_long"
+prompt_style = "zero_shot_long"
+llm_temperature = 0.2  
+top_p = 1.0
+max_tokens = None
 
 # 📅 Zeitstempel
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -30,7 +33,7 @@ original_domain = domain_file.read_text()
 prompt_fn = get_prompt(prompt_style)
 prompt_string = prompt_fn(original_domain)
 
-llm = get_llm_model(llm_name)
+llm = get_llm_model(llm_name, temperature=llm_temperature, top_p=top_p, max_tokens=max_tokens)
 llm_result = llm.generate(prompt_string)
 generated_domain = llm_result["response"]
 
@@ -55,12 +58,10 @@ for problem_file in sorted(instances_dir.glob("*.pddl")):
         planner=planner,
         llm_name=llm_name,
         prompt_style=prompt_style,
-        skip_llm=True
+        original_domain_str=original_domain,
+        llm_api_time=llm_result["api_time"],
+        llm_temperature=llm_temperature
     )
-    result["LLM_API_Time_s"] = llm_result["api_time"]
-    result["Tokens_Total"] = llm_result.get("tokens_total")
-    result["Prompt_Length_Chars"] = llm_result.get("prompt_length_chars")
-    result["Completion_Length_Chars"] = llm_result.get("completion_length_chars")
     results.append(result)
 
 # 💾 CSV speichern

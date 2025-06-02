@@ -204,9 +204,9 @@ def run_for_all_instances(domain_file, instances_folder, prompt_path, output_csv
     return df
 
 if __name__ == "__main__":
-    domain_file = "benchmarks/blocks-strips-typed copy 2/domain.pddl"
-    instance_path = "benchmarks/blocks-strips-typed copy 2/instances/instance-1.pddl"
-    prompt_file = "prompts/reorder_prompt_vallati.txt"
+    domain_file = "benchmarks/test/domain.pddl"
+    instance_path = "benchmarks/test/instances/instance-1.pddl"
+    prompt_file = "experiments/llm-configured/prompts/reorder_prompt_vallati.txt"
     model = "gpt-4"
     planner = "downward"
 
