@@ -2,6 +2,7 @@ from experiment_runner import run_experiment
 from llms import get_llm_model
 from prompts import get_prompt
 from utils.validity import is_valid_with_val
+from utils.extraction import extract_pddl_from_response
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -13,8 +14,8 @@ load_dotenv()
 # 🔧 Konfiguration
 domain_file = Path("benchmarks/test/domain.pddl")
 instances_dir = domain_file.parent / "instances"
-planner = "madagascar"
-llm_name = "llama3"
+planner = "mercury"
+llm_name = "o4-mini"
 prompt_style = "zero_shot_long"
 llm_temperature = 0.2  
 top_p = 1.0
@@ -35,7 +36,12 @@ prompt_string = prompt_fn(original_domain)
 
 llm = get_llm_model(llm_name, temperature=llm_temperature, top_p=top_p, max_tokens=max_tokens)
 llm_result = llm.generate(prompt_string)
-generated_domain = llm_result["response"]
+
+if not llm_result.get("response"):
+    print("Empty response from LLM")
+    exit(1)
+
+generated_domain = extract_pddl_from_response(llm_result["response"])
 
 # 💾 Speichern
 generated_domain_path.write_text(generated_domain)

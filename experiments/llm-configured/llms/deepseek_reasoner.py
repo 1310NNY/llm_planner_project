@@ -7,13 +7,13 @@ load_dotenv()
 api_key = os.getenv("DEEPSEEK_API_KEY")
 assert api_key, "DEEPSEEK_API_KEY not set in .env"
 
-class DeepseekChat:
-    def __init__(self, model="deepseek-chat", temperature=0.7, max_tokens=2048, top_p=1.0):
+class DeepseekReasoner:
+    def __init__(self, model="deepseek-reasoner", temperature=0.7, max_tokens=2048, top_p=1.0):
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.top_p = top_p
-        self.api_url = "https://api.deepseek.com/chat/completions"
+        self.api_url = "https://api.deepseek.com/v1"
 
     def generate(self, prompt):
         if isinstance(prompt, list):

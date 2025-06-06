@@ -8,7 +8,7 @@ api_key = os.getenv("ANTHROPIC_API_KEY")
 assert api_key is not None, "ANTHROPIC_API_KEY not set in environment."
 
 class AnthropicClaude:
-    def __init__(self, model="claude-3-opus-20240229", temperature=0.2, max_tokens=1024, top_p=1.0):
+    def __init__(self, model="claude-3-7-sonnet-20250219", temperature=0.2, max_tokens=1024, top_p=1.0):
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens or 1024  # fallback falls None

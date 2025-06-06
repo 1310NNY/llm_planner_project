@@ -10,7 +10,7 @@ assert api_key is not None, "GEMINI_API_KEY not set in environment."
 genai.configure(api_key=api_key)
 
 class GoogleGemini:
-    def __init__(self, model="gemini-1.5-pro", temperature=0.2, max_tokens=2048, top_p=1.0):
+    def __init__(self, model="gemini-2.5-pro-exp-03-25", temperature=0.2, max_tokens=2048, top_p=1.0):
         self.model_name = model
         self.temperature = temperature
         self.max_tokens = max_tokens
