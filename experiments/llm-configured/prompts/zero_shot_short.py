@@ -3,4 +3,4 @@ def generate_prompt(domain_str: str) -> str:
 
 Do not rename or delete anything. Only change order to follow best practices in planning literature.
 
-Return only the reordered PDDL starting with (define ...):\n\n{domain_str}"""
+Return only the reordered PDDL domain: \n\n{domain_str}"""

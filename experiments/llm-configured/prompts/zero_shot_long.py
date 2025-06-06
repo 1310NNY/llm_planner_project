@@ -3,12 +3,12 @@ def generate_prompt(domain_str: str) -> str:
 
 {domain_str}
 
-Please reorder this domain file to make it more heuristic-friendly for modern planners such as Fast Downward, following the insights from Vallati et al. (2015) on domain model configuration.
+Please reorder this PDDL domain file to improve the efficiency of ai planner, following the insights from Vallati et al. (2015) on domain model configuration.
 
 IMPORTANT:
-- Do **not** change the semantics of any action.
-- Do **not** rename, remove, or logically alter anything.
-- Only adjust the **order** of elements.
+- Do not change the semantics of any action.
+- Do not rename, remove, or logically alter anything.
+- Only adjust the order of elements.
 
 Follow these reordering rules:
 
@@ -19,4 +19,4 @@ Follow these reordering rules:
 5. Maintain consistent parameter order across actions.
 6. Do not remove any content – this is purely a structural reordering.
 
-Return only the updated, syntactically valid PDDL domain file – **no explanation, no comments, no extra text**. The output must begin with `(define` and end with the last closing parenthesis."""
+Return only the reordered, syntactically valid PDDL domain file – no explanation, no comments, no extra text."""

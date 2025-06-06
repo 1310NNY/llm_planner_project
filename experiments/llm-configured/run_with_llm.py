@@ -15,7 +15,7 @@ load_dotenv()
 domain_file = Path("benchmarks/test/domain.pddl")
 instances_dir = domain_file.parent / "instances"
 planner = "mercury"
-llm_name = "o4-mini"
+llm_name = "mixtral"
 prompt_style = "zero_shot_long"
 llm_temperature = 0.2  
 top_p = 1.0

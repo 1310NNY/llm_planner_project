@@ -1,20 +1,20 @@
-import re
 import json
 
 def extract_pddl_from_response(response_text: str) -> str:
-    """
-    Extrahiert echten PDDL-Text, auch wenn er als escaped-String (JSON-Stil) kommt.
-    """
     if not isinstance(response_text, str):
         return ""
 
-    # Sonderfall: string wie '"(define...\\n...)"' → versuche JSON-Unescaping
+    # Sonderfall: GPT-4o oder o4-mini liefert evtl. escaped string
     if response_text.strip().startswith('"') and "\\n" in response_text:
         try:
             response_text = json.loads(response_text)
         except json.JSONDecodeError:
-            pass  # wenn fehlschlägt, normal weitermachen
+            pass  # fallback ohne Änderung
 
+    # 🔧 Wandle explizite "\\n" in echte Zeilenumbrüche um (falls json.loads nicht nötig war)
+    response_text = response_text.replace("\\n", "\n")
+
+    # Starte bei "(define"
     start_idx = response_text.find("(define")
     if start_idx == -1:
         return ""
@@ -29,7 +29,10 @@ def extract_pddl_from_response(response_text: str) -> str:
         elif char == ")":
             balance -= 1
             if balance == 0:
-                end_idx = i
+                end_idx = i + 1
                 break
 
-    return pddl_candidate[:end_idx + 1].strip() if end_idx is not None else pddl_candidate.strip()
+    if end_idx is None:
+        return ""
+
+    return pddl_candidate[:end_idx].strip()

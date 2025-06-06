@@ -12,44 +12,42 @@ class OpenAIGPT:
     def __init__(self, model="gpt-4", temperature=0.2, max_tokens=None, top_p=1.0):
         self.model = model
         self.temperature = temperature
-        self.max_tokens = max_tokens or 1024
+        self.max_tokens = max_tokens
         self.top_p = top_p
         self.client = OpenAI(api_key=api_key)
 
     def generate(self, prompt):
+        start_time = time.time()
+
+        # Prompt-Formatierung
         if isinstance(prompt, str):
             messages = [
                 {"role": "system", "content": "You are a PDDL expert."},
                 {"role": "user", "content": prompt}
             ]
         else:
-            messages = prompt  # e.g. cot-style prompt
+            messages = prompt  # Already formatted (e.g., CoT)
 
-        start_time = time.time()
-
+        # 🔄 Responses API für o4-mini
         if self.model == "o4-mini":
-            # 🔹 Responses API: Format als String
             input_str = ""
             for msg in messages:
-                role = msg["role"]
-                content = msg["content"]
-                if role == "system":
-                    input_str += f"[System]: {content}\n\n"
-                elif role == "user":
-                    input_str += f"[User]: {content}\n\n"
-                elif role == "assistant":
-                    input_str += f"[Assistant]: {content}\n\n"
+                if msg["role"] == "system":
+                    input_str += f"[System]: {msg['content']}\n\n"
+                elif msg["role"] == "user":
+                    input_str += f"[User]: {msg['content']}\n\n"
+                elif msg["role"] == "assistant":
+                    input_str += f"[Assistant]: {msg['content']}\n\n"
 
             response = self.client.responses.create(
                 model=self.model,
                 input=input_str.strip(),
                 reasoning={"effort": "medium"}
             )
-            raw_output = response.output
-            content = raw_output if isinstance(raw_output, str) else str(raw_output)
+            content = response.output
 
+        # 🔄 ChatCompletion für GPT-4, GPT-3.5, GPT-4o
         else:
-            # 🔹 Normale ChatCompletion API (gpt-4, 3.5, 4o)
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
@@ -59,9 +57,14 @@ class OpenAIGPT:
             )
             content = response.choices[0].message.content
 
-        duration = time.time() - start_time
+        # 🔧 Formatierung fixen (\n → echte Zeilenumbrüche)
+        if isinstance(content, str):
+            content = content.replace("\\n", "\n").strip()
+        else:
+            content = str(content)
 
+        duration = time.time() - start_time
         return {
-            "response": content.strip() if isinstance(content, str) else str(content),
+            "response": content,
             "api_time": duration
         }
