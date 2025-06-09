@@ -2,26 +2,24 @@
 DOMAIN_FILE=$1
 PROBLEM_FILE=$2
 
-echo "[INFO] Running Fast Downward:"
+echo "[INFO] Running Fast Downward with LAMA:"
 echo "  Domain: $DOMAIN_FILE"
 echo "  Problem: $PROBLEM_FILE"
 
 # Start Wall Clock Time
 START_TIME=$(date +%s.%N)
 
-# Execute Fast Downward and save Output 
+# Execute LAMA
 OUTPUT=$(/opt/downward/fast-downward.py \
-    "$DOMAIN_FILE" "$PROBLEM_FILE" \
-    --search "eager_greedy([ff()], preferred=[ff()])")
+    --alias lama \
+    "$DOMAIN_FILE" "$PROBLEM_FILE")
 
 # Stop Wall Clock Time
 END_TIME=$(date +%s.%N)
 RUNTIME_WALL=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 
-# Plan cost extract
+# Extract Metrics
 PLAN_COST=$(echo "$OUTPUT" | grep "Plan cost:" | awk '{print $NF}')
-
-# Total Time (intern Planner)
 RUNTIME_INTERNAL=$(echo "$OUTPUT" | grep "Total time:" | sed -E 's/.*Total time: ([0-9.]+)s.*/\1/')
 
 # Output

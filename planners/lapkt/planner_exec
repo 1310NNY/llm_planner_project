@@ -1,9 +1,9 @@
 #!/bin/sh
 DOMAIN_FILE=$1
 PROBLEM_FILE=$2
-PLANNER_PATH="/root/projects/lapkt/compiled_planners/siw"
+PLANNER_PATH="/root/projects/lapkt/compiled_planners/siw-then-bfsf"
 
-echo "[INFO] Running LAPKT (siw):"
+echo "[INFO] Running LAPKT (siw-then-bfsf):"
 echo "[METRIC] Domain: $DOMAIN_FILE"
 echo "[METRIC] Problem: $PROBLEM_FILE"
 
@@ -21,7 +21,7 @@ RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 echo "$OUTPUT"
 
 # Plan cost extract
-PLAN_COST=$(echo "$OUTPUT" | grep "Plan found with cost:" | awk '{print $5}')
+PLAN_COST=$(echo "$OUTPUT" | grep "Plan found with cost:" | sed -E 's/.*cost:[[:space:]]*([0-9]+).*/\1/')
 
 # Intern Runtime 
 RUNTIME_INTERNAL_S=$(echo "$OUTPUT" | grep "Total time:" | awk '{print $3}')

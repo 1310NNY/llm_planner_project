@@ -23,7 +23,7 @@ def run_mercury(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=1800 
+            timeout=300 
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -70,8 +70,8 @@ def run_mercury(domain_file, problem_file):
     return metrics
 
 if __name__ == "__main__":
-    domain = "benchmarks/blocks-strips-typed/domain.pddl"
-    problem = "benchmarks/blocks-strips-typed/instances/instance-1.pddl"
+    domain = "benchmarks/child-snack-sequential-agile/domain.pddl"
+    problem = "benchmarks/child-snack-sequential-agile/instances/instance-1.pddl"
 
     result = run_mercury(domain, problem)
     print("\nResult")

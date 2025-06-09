@@ -39,7 +39,7 @@ def run_all_downward():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     df = pd.DataFrame(all_results)
-    df.to_csv(out_dir / "downward_results.csv", index=False)
+    df.to_csv(out_dir / "downward_results_1.csv", index=False)
     print("✅ Ergebnisse gespeichert unter:", out_dir / "downward_results.csv")
 
 if __name__ == "__main__":

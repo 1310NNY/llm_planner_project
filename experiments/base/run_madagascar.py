@@ -23,7 +23,7 @@ def run_madagascar(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=1800 
+            timeout=300 
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
