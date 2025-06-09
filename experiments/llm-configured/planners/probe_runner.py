@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 import pandas as pd
 
-def run_madagascar(domain_file, problem_file):
+def run_probe(domain_file, problem_file):
     domain_file = Path(domain_file)
     problem_file = Path(problem_file)
 
@@ -14,7 +14,7 @@ def run_madagascar(domain_file, problem_file):
         "--cpus=1.0",           # 1 vCPU
         "--memory=8g",          # 8 GB RAM
         "-v", f"{benchmark_dir}:/pddl",
-        "madagascar_planner",
+        "probe_planner",
         f"/pddl/{domain_file.name}",
         f"/pddl/{problem_rel}"
     ]
@@ -73,7 +73,7 @@ def run_madagascar(domain_file, problem_file):
 
 # Optional: Testlauf
 if __name__ == "__main__":
-    domain = Path("benchmarks/benchmarks/test/domain.pddl")
-    problem = Path("benchmarks/benchmarks/test/instances/instance-1.pddl")
-    result = run_madagascar(domain, problem)
+    domain = Path("benchmarks/test/domain.pddl")
+    problem = Path("benchmarks/test/instances/instance-1.pddl")
+    result = run_probe(domain, problem)
     print(result)

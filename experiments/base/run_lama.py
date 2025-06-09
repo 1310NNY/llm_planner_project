@@ -1,22 +1,21 @@
 import subprocess
-from pathlib import Path
+import os
 import pandas as pd
 
-def run_downward(domain_file, problem_file):
-    domain_file = Path(domain_file)
-    problem_file = Path(problem_file)
-
-    benchmark_dir = domain_file.parent.resolve()
-    problem_rel = problem_file.resolve().relative_to(benchmark_dir).as_posix()
+def run_lama(domain_file, problem_file):
+    benchmark_dir = os.path.abspath(os.path.dirname(domain_file))
+    
+    # Relative path to instance 
+    problem_rel = os.path.relpath(problem_file, benchmark_dir).replace("\\", "/")
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # 1 vCPU
-        "--memory=8g",          # 8 GB RAM
+        "--cpus=1.0",           # Nur 1 vCPU
+        "--memory=8g",          # Maximal 8 GB RAM
         "-v", f"{benchmark_dir}:/pddl",
-        "downward_planner",
-        f"/pddl/{domain_file.name}",
-        f"/pddl/{problem_rel}"
+        "lama_planner",
+        "/pddl/" + os.path.basename(domain_file),
+        "/pddl/" + problem_rel
     ]
 
     try:
@@ -25,7 +24,7 @@ def run_downward(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=1800  # wie IPC
+            timeout=300 #300 vorher
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -35,7 +34,7 @@ def run_downward(domain_file, problem_file):
             "Runtime_internal_s": None,
             "Status": "TIMEOUT"
         }
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
         return {
             "PlanCost": None,
             "Runtime_wall_s": None,
@@ -71,9 +70,12 @@ def run_downward(domain_file, problem_file):
 
     return metrics
 
-# Optional: Testlauf
+# for manual tests 
 if __name__ == "__main__":
-    domain = Path("benchmarks/test/domain.pddl")
-    problem = Path("benchmarks/test/instances/instance-1.pddl")
-    result = run_downward(domain, problem)
+    
+    domain = "benchmarks/child-snack-sequential-agile/domain.pddl"
+    problem = "benchmarks/child-snack-sequential-agile/instances/instance-1.pddl"
+    result = run_lama(domain, problem)
+    print("\nResult:")
     print(result)
+

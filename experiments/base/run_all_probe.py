@@ -1,8 +1,8 @@
 from pathlib import Path
 import pandas as pd
-from run_downward import run_downward
+from run_probe import run_probe
 
-def run_all_downward():
+def run_all_probe():
     project_root = Path(__file__).resolve().parents[2]
     benchmark_root = project_root / "benchmarks"
     all_results = []
@@ -25,13 +25,13 @@ def run_all_downward():
         for file in sorted(instances_path.iterdir()):
             if file.suffix == ".pddl":
                 problem_file = file
-                result = run_downward(str(domain_file), str(problem_file))
+                result = run_probe(str(domain_file), str(problem_file))
                 
                 if result is not None:
                     # ➕ Ergänze Meta-Informationen
                     result["domain"] = domain_folder.name
                     result["problem"] = file.name
-                    result["planner"] = "downward"
+                    result["planner"] = "probe"
                     all_results.append(result)
 
     # ➕ Ergebnisse speichern
@@ -39,8 +39,8 @@ def run_all_downward():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     df = pd.DataFrame(all_results)
-    df.to_csv(out_dir / "downward_results_1.csv", index=False)
-    print("✅ Ergebnisse gespeichert unter:", out_dir / "downward_results.csv")
+    df.to_csv(out_dir / "probe_results_1.csv", index=False)
+    print("✅ Ergebnisse gespeichert unter:", out_dir / "probe_results.csv")
 
 if __name__ == "__main__":
-    run_all_downward()
+    run_all_probe()

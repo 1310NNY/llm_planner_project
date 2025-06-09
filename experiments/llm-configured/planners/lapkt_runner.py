@@ -25,7 +25,7 @@ def run_lapkt(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=1800  # wie IPC
+            timeout=300  # wie IPC
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
