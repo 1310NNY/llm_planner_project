@@ -2,7 +2,7 @@ import subprocess
 import os
 import pandas as pd
 
-def run_lama(domain_file, problem_file):
+def run_siw(domain_file, problem_file):
     benchmark_dir = os.path.abspath(os.path.dirname(domain_file))
     
     # Relative path to instance 
@@ -10,10 +10,12 @@ def run_lama(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # Nur 1 vCPU
-        "--memory=8g",          # Maximal 8 GB RAM
+        "--cpus=1.0",           
+         "--memory=8g",      
+        "--memory-swap=8g",            
+        "--oom-kill-disable=false",    
         "-v", f"{benchmark_dir}:/pddl",
-        "lama_planner",
+        "siw_planner",
         "/pddl/" + os.path.basename(domain_file),
         "/pddl/" + problem_rel
     ]
@@ -24,7 +26,7 @@ def run_lama(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300 #300 vorher
+            timeout=300 
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -73,9 +75,9 @@ def run_lama(domain_file, problem_file):
 # for manual tests 
 if __name__ == "__main__":
     
-    domain = "benchmarks/child-snack-sequential-agile/domain.pddl"
-    problem = "benchmarks/child-snack-sequential-agile/instances/instance-1.pddl"
-    result = run_lama(domain, problem)
+    domain = "benchmarks/blocks-strips-typed/domain.pddl"
+    problem = "benchmarks/blocks-strips-typed/instances/instance-1.pddl"
+    result = run_siw(domain, problem)
     print("\nResult:")
     print(result)
 

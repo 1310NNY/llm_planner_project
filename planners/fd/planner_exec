@@ -11,8 +11,8 @@ START_TIME=$(date +%s.%N)
 
 # Execute LAMA
 OUTPUT=$(/opt/downward/fast-downward.py \
-    --alias lama \
-    "$DOMAIN_FILE" "$PROBLEM_FILE")
+    "$DOMAIN_FILE" "$PROBLEM_FILE"\
+    --search "lazy_greedy([ff(), cea()], preferred=[ff(), cea()])")
 
 # Stop Wall Clock Time
 END_TIME=$(date +%s.%N)

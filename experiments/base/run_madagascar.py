@@ -9,8 +9,10 @@ def run_madagascar(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # Nur 1 vCPU
-        "--memory=8g",          # Maximal 8 GB RAM
+        "--cpus=1.0",           
+        "--memory=8g",      
+        "--memory-swap=8g",            
+        "--oom-kill-disable=false",            
         "-v", f"{benchmark_dir}:/pddl",
         "madagascar_planner",
         "/pddl/" + os.path.basename(domain_file),
@@ -26,6 +28,7 @@ def run_madagascar(domain_file, problem_file):
             timeout=300 
         )
         output = result.stdout
+        print (output)
     except subprocess.TimeoutExpired:
         return {
             "PlanCost": None,

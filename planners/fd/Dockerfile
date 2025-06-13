@@ -16,7 +16,7 @@ RUN git clone https://github.com/aibasel/downward.git && \
 WORKDIR /workspace
 
 # planner_exec copy and make exec
-COPY planners/probe/planner_exec /planner_exec
+COPY planners/fd/planner_exec /planner_exec
 RUN chmod +x /planner_exec
 
 # Entry point set

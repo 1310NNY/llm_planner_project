@@ -1,19 +1,22 @@
 import subprocess
-import os
+from pathlib import Path
 import pandas as pd
 
-def run_lapkt(domain_file, problem_file):
-    benchmark_dir = os.path.abspath(os.path.dirname(domain_file))
-    problem_rel = os.path.relpath(problem_file, benchmark_dir).replace("\\", "/")
+def run_fd(domain_file, problem_file):
+    domain_file = Path(domain_file)
+    problem_file = Path(problem_file)
+
+    benchmark_dir = domain_file.parent.resolve()
+    problem_rel = problem_file.resolve().relative_to(benchmark_dir).as_posix()
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # Nur 1 vCPU
-        "--memory=8g",          # Maximal 8 GB RAM
+        "--cpus=1.0",           
+        "--memory=8g",          
         "-v", f"{benchmark_dir}:/pddl",
-        "lapkt_planner",
-        "/pddl/" + os.path.basename(domain_file),
-        "/pddl/" + problem_rel
+        "fd_planner",
+        f"/pddl/{domain_file.name}",
+        f"/pddl/{problem_rel}"
     ]
 
     try:
@@ -22,7 +25,7 @@ def run_lapkt(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300
+            timeout=300  
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -32,7 +35,7 @@ def run_lapkt(domain_file, problem_file):
             "Runtime_internal_s": None,
             "Status": "TIMEOUT"
         }
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return {
             "PlanCost": None,
             "Runtime_wall_s": None,
@@ -68,10 +71,9 @@ def run_lapkt(domain_file, problem_file):
 
     return metrics
 
+# Optional: Testlauf
 if __name__ == "__main__":
-    domain = "benchmarks/blocks-strips-typed/domain.pddl"
-    problem = "benchmarks/blocks-strips-typed/instances/instance-1.pddl"
-
-    result = run_lapkt(domain, problem)
-    print("\nResult:")
+    domain = Path("benchmarks/blocks-strips-typed/domain.pddl")
+    problem = Path("benchmarks/blocks-strips-typed/instance-1.pddl")
+    result = run_fd(domain, problem)
     print(result)

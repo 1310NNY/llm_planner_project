@@ -17,8 +17,8 @@ config.py
 planners/downward/downward/
 
 # Results
-results/
 *.pddl
 *.SOL
 *.log
+README.md
 

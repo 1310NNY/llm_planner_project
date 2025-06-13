@@ -1,21 +1,18 @@
-from .lama_runner import run_lama
-from .probe_runner import run_probe
+from .bfs_f_runner import run_bfs_f
+from .fd_runner import run_fd
 from .mercury_runner import run_mercury
-from .lpg_runner import run_lpg
-from .lapkt_runner import run_lapkt
+from .siw_runner import run_siw
 from .madagascar_runner import run_madagascar
 
 def get_planner_runner(name: str):
-    if name == "lama":
-        return run_lama
-    elif name == "probe":
-        return run_probe
+    if name == "bsf_f":
+        return run_bfs_f
+    elif name == "fd":
+        return run_fd
     elif name == "mercury":
         return run_mercury
-    elif name == "lpg":
-        return run_lpg
-    elif name == "lapkt":
-        return run_lapkt
+    elif name == "siw":
+        return run_siw
     elif name == "madagascar":
         return run_madagascar
     else:

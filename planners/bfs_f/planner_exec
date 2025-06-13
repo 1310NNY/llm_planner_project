@@ -1,0 +1,39 @@
+#!/bin/sh
+DOMAIN_FILE=$1
+PROBLEM_FILE=$2
+
+# Pfad zum at_bfs_f-Executable im LAPKT-Image
+PLANNER_PATH="/root/projects/lapkt/compiled_planners/siw-then-bfsf"
+
+echo "[INFO] Running at_bfs_f (SIW → BFS_f):"
+echo "[METRIC] Domain: $DOMAIN_FILE"
+echo "[METRIC] Problem: $PROBLEM_FILE"
+
+# Startzeit messen
+START_TIME=$(date +%s.%N)
+
+# Planner ausführen
+OUTPUT=$("$PLANNER_PATH" --domain "$DOMAIN_FILE" --problem "$PROBLEM_FILE")
+
+# Endzeit
+END_TIME=$(date +%s.%N)
+RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
+
+# Plan-Kosten extrahieren
+PLAN_COST=$(echo "$OUTPUT" | grep "Plan found with cost:" | sed -E 's/.*cost:[[:space:]]*([0-9]+).*/\1/')
+RUNTIME_INTERNAL_S=$(echo "$OUTPUT" | grep "Total time:" | awk '{print $3}')
+
+# Ausgabe und Metriken
+echo "$OUTPUT"
+
+if [ -n "$PLAN_COST" ]; then
+    echo "[RESULT] STATUS: SUCCESS"
+    echo "[METRIC] PlanCost: $PLAN_COST"
+else
+    echo "[RESULT] STATUS: FAILURE"
+    echo "[METRIC] PlanCost: N/A"
+fi
+
+echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL_S"
+echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL_S"
+

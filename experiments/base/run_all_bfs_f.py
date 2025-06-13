@@ -1,11 +1,11 @@
 from pathlib import Path
 import pandas as pd
-from run_madagascar import run_madagascar
+from run_bfs_f import run_bfs_f
 
-def run_all_madagascar():
+def run_all_bfs_f():
     project_root = Path(__file__).resolve().parents[2]
     benchmark_root = project_root / "benchmarks"
-    result_file = project_root / "results" / "base" / "madagascar_results.csv"
+    result_file = project_root / "results" / "base" / "bfs_f_results.csv"
 
     cols = ["domain", "problem", "planner", "PlanCost", "Runtime_internal_s", "Runtime_wall_s", "Status"]
     result_file.parent.mkdir(parents=True, exist_ok=True)
@@ -37,7 +37,7 @@ def run_all_madagascar():
 
             domain_name = domain_folder.name
             problem_name = file.name
-            planner_name = "madagascar"
+            planner_name = "bfs_f"
 
             is_duplicate = (
                 (existing_df["domain"] == domain_name) &
@@ -49,8 +49,8 @@ def run_all_madagascar():
                 print(f"⏭️  Überspringe bereits vorhandene Instanz: {domain_name} | {problem_name}")
                 continue
 
-            print(f"🔍 Running madagascar on domain '{domain_name}', problem '{problem_name}'")
-            result = run_madagascar(str(domain_file), str(file))
+            print(f"🔍 Running bfs_f on domain '{domain_name}', problem '{problem_name}'")
+            result = run_bfs_f(str(domain_file), str(file))
 
             if result is not None:
                 row = {
@@ -67,4 +67,6 @@ def run_all_madagascar():
     print("✅ Alle neuen Ergebnisse gespeichert unter:", result_file)
 
 if __name__ == "__main__":
-    run_all_madagascar()
+    run_all_bfs_f()
+
+

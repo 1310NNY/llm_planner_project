@@ -6,23 +6,26 @@ echo "[INFO] Running LPG:"
 echo "  Domain: $DOMAIN_FILE"
 echo "  Problem: $PROBLEM_FILE"
 
-# Start Wallclock
 START_TIME=$(date +%s.%N)
 
-/opt/lpg/lpg-td/lpg-td \
+# Führe LPG-TD aus und speichere Ausgabe in Variable
+OUTPUT=$(/opt/lpg/lpg-td/lpg-td \
     -o "$DOMAIN_FILE" \
     -f "$PROBLEM_FILE" \
     -n 1 \
     -cputime 300 \
-    -v off > /workspace/lpg_output.txt
+    -v off \
+    -seed 0 )
 
-# Wallclock-End
 END_TIME=$(date +%s.%N)
-RUNTIME_WALL_S=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
+RUNTIME_WALL=$(python3 -c "print(round($END_TIME - $START_TIME, 6))")
 
-# Extrahct plancost and total time
-PLAN_COST=$(grep "Actions:" /workspace/lpg_output.txt | awk '{print $2}')
-RUNTIME_INTERNAL_S=$(grep "Total time:" /workspace/lpg_output.txt | awk '{print $3}')
+# Extrahiere Plan-Kosten und Rechenzeit
+PLAN_COST=$(echo "$OUTPUT" | grep "Actions:" | awk '{print $2}')
+RUNTIME_INTERNAL=$(echo "$OUTPUT" | grep "Total time:" | awk '{print $3}')
+
+# Zeige alles an
+echo "$OUTPUT"
 
 if [ -n "$PLAN_COST" ]; then
     echo "[RESULT] STATUS: SUCCESS"
@@ -32,6 +35,7 @@ else
     echo "[METRIC] PlanCost: N/A"
 fi
 
-echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL_S"
-echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL_S"
+echo "[METRIC] Runtime_internal_s: $RUNTIME_INTERNAL"
+echo "[METRIC] Runtime_wall_s: $RUNTIME_WALL"
+
 

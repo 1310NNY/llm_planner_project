@@ -11,8 +11,8 @@ def run_mercury(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # 1 vCPU
-        "--memory=8g",          # 8 GB RAM
+        "--cpus=1.0",           
+        "--memory=8g",         
         "-v", f"{benchmark_dir}:/pddl",
         "mercury_planner",
         f"/pddl/{domain_file.name}",
@@ -25,7 +25,7 @@ def run_mercury(domain_file, problem_file):
             capture_output=True,
             text=True,
             check=True,
-            timeout=300  # wie IPC
+            timeout=300  
         )
         output = result.stdout
     except subprocess.TimeoutExpired:
@@ -73,7 +73,7 @@ def run_mercury(domain_file, problem_file):
 
 # Optional: Testlauf
 if __name__ == "__main__":
-    domain = Path("benchmarks/test/domain_llm_gpt4_zero_shot_short.pddl")
-    problem = Path("benchmarks/test/instances/instance-1.pddl")
+    domain = Path("benchmarks/blocks-strips-typed/domain.pddl")
+    problem = Path("benchmarks/blocks-strips-typed/instance-1.pddl")
     result = run_mercury(domain, problem)
     print(result)

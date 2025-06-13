@@ -1,22 +1,25 @@
 def generate_prompt(domain_str: str) -> str:
-    return f"""Here is a PDDL domain file:
+    return f"""You are a PDDL domain expert.
 
-{domain_str}
+Your task is to reorder the following PDDL domain file to improve AI planner efficiency (coverage, time, quality).
 
-Please reorder this PDDL domain file to improve the efficiency of ai planner, following the insights from Vallati et al. (2015) on domain model configuration.
+You may not change the semantics of the domain in any way. Only reorder elements as described below.
+
+Rules to follow (based on Vallati et al., 2015):
+
+1. Action ordering: Place actions earlier in the domain if they are semantically related to goals or likely to be used early in typical plans, based on their structure.
+2. Precondition ordering: In `:precondition` blocks, list goal-relevant predicates first, supporting predicates after.
+3. Effect ordering: In `:effect` blocks, place positive effects first, then deletions (e.g., `(not ...)`).
+4. Predicate grouping in effects/preconditions: Keep logically related predicates (e.g., `(on ...)`, `(clear ...)`) close together.
+5. Parameter consistency: Maintain consistent parameter ordering across all actions.
+6. Macro positioning: If macro-actions are present, place them directly after the primitive actions they extend.
+7. Predicate grouping in header: In the domain header, group static predicates (i.e., those that do not change during planning) together.
 
 IMPORTANT:
-- Do not change the semantics of any action.
-- Do not rename, remove, or logically alter anything.
-- Only adjust the order of elements.
+- Do NOT rename, remove, or semantically alter any action, predicate, or parameter.
+- Do NOT add comments, explanations, or formatting.
+- Return ONLY a syntactically valid PDDL domain file that respects the structure of the original.
 
-Follow these reordering rules:
-
-1. Actions that are typically used earlier or more frequently should appear higher in the domain.
-2. In `:precondition` blocks: Place goal-relevant predicates first, supporting ones after.
-3. In `:effect` blocks: List positive effects first, then deletion effects (e.g., `(not ...)`).
-4. Keep logically related predicates (e.g., `(on ...)`, `(clear ...)`) close together.
-5. Maintain consistent parameter order across actions.
-6. Do not remove any content – this is purely a structural reordering.
-
-Return only the reordered, syntactically valid PDDL domain file – no explanation, no comments, no extra text."""
+DOMAIN TO REORDER:
+{domain_str}
+"""

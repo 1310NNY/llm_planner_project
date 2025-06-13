@@ -11,8 +11,8 @@ def run_madagascar(domain_file, problem_file):
 
     docker_cmd = [
         "docker", "run", "--rm",
-        "--cpus=1.0",           # 1 vCPU
-        "--memory=8g",          # 8 GB RAM
+        "--cpus=1.0",           
+        "--memory=8g",          
         "-v", f"{benchmark_dir}:/pddl",
         "madagascar_planner",
         f"/pddl/{domain_file.name}",
@@ -73,7 +73,7 @@ def run_madagascar(domain_file, problem_file):
 
 # Optional: Testlauf
 if __name__ == "__main__":
-    domain = Path("benchmarks/benchmarks/test/domain.pddl")
-    problem = Path("benchmarks/benchmarks/test/instances/instance-1.pddl")
+    domain = Path("benchmarks/blocks-strips-typed/domain.pddl")
+    problem = Path("benchmarks/blocks-strips-typed/instance-1.pddl")
     result = run_madagascar(domain, problem)
     print(result)
