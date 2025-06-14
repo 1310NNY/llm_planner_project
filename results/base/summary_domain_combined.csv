@@ -1,0 +1,15 @@
+domain,Coverage,IPC_Score,PAR10,Coverage_std,IPC_Score_std,PAR10_std
+barman-sequential-agile,0.37,7.4,1923.1,0.43,8.65,1265.1
+blocks-strips-typed,0.9,18.0,300.4,0.22,4.47,670.6
+cave-diving-sequential-agile,0.25,5.0,2270.8,0.15,2.92,427.6
+child-snack-sequential-agile,0.26,5.2,2233.0,0.19,3.83,569.3
+city-car-sequential-agile,0.44,8.8,1716.6,0.34,6.72,980.8
+floor-tile-sequential-agile,0.27,5.4,2193.1,0.41,8.23,1236.3
+genome-edit-distances-sequential-agile,0.43,8.6,1731.6,0.43,8.59,1276.4
+hiking-sequential-agile,0.29,5.8,2136.5,0.21,4.15,616.6
+maintenance-sequential-agile,0.34,6.8,1988.7,0.3,6.06,902.8
+parking-sequential-agile,0.26,5.2,2253.9,0.28,5.54,811.8
+tetris-sequential-agile,0.17,3.4,2513.8,0.21,4.16,595.2
+thoughtful-sequential-agile,0.45,9.0,1656.0,0.38,7.55,1128.8
+transport-sequential-agile,0.38,7.6,1876.4,0.52,10.43,1542.7
+visit-all-sequential-agile,0.4,8.0,1850.5,0.55,10.95,1574.1

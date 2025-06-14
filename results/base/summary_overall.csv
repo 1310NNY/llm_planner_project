@@ -1,0 +1,6 @@
+planner,Coverage,IPC_Score,PAR10
+bfs_f,0.61,172.0,1191.3
+mercury,0.49,138.0,1542.4
+fd,0.24,67.0,2295.1
+siw,0.11,30.0,2687.7
+madagascar,0.41,114.0,1799.3
