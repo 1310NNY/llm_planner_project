@@ -1,0 +1,58 @@
+import pandas as pd
+from pathlib import Path
+
+# === Konfiguration ===
+csv_path = Path("results/llm_domain_rewrites.csv")
+base_dir = Path("benchmarks")
+expected_instances = [f"instance-{i}.pddl" for i in range(1, 21)]
+
+# CSV einlesen
+df = pd.read_csv(csv_path)
+
+# Duplikate entfernen (nur echte Duplikate in allen relevanten Feldern)
+df = df.drop_duplicates(subset=["domain", "problem", "LLM_Model", "Prompt_ID", "LLM_Temperature"])
+
+# Alle bereits vorhandenen Kombinationen merken
+existing_keys = set(
+    tuple(row) for row in df[["domain", "problem", "LLM_Model", "Prompt_ID", "LLM_Temperature"]].values
+)
+
+# Alle Kombinationen rekonstruieren
+new_rows = []
+
+for domain_entry in df["domain"].unique():
+    domain_path = None
+    for d in base_dir.iterdir():
+        if d.is_dir() and domain_entry.startswith(d.name):
+            domain_path = d / domain_entry
+            break
+
+    # Domain-Metadaten extrahieren
+    subset = df[df["domain"] == domain_entry]
+    for _, row in subset.iterrows():
+        llm = row["LLM_Model"]
+        prompt = row["Prompt_ID"]
+        temp = row["LLM_Temperature"]
+
+        for instance in expected_instances:
+            key = (domain_entry, instance, llm, prompt, temp)
+            if key not in existing_keys:
+                print(f"➕ Ergänze fehlend: {key}")
+
+                new_rows.append({
+                    "domain": domain_entry,
+                    "problem": instance,
+                    "LLM_Model": llm,
+                    "Prompt_ID": prompt,
+                    "LLM_Temperature": temp,
+                    "LLM_API_Time_s": None,
+                    "Valid_Domain": False
+                })
+
+# Neue Zeilen hinzufügen
+if new_rows:
+    df = pd.concat([df, pd.DataFrame(new_rows)], ignore_index=True)
+
+# Final speichern
+df.to_csv(csv_path, index=False)
+print(f"✅ CSV bereinigt und ergänzt: {csv_path}")

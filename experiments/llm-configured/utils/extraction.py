@@ -1,4 +1,5 @@
 import json
+import re
 
 def extract_pddl_from_response(response_text: str) -> str:
     if not isinstance(response_text, str):
@@ -11,16 +12,20 @@ def extract_pddl_from_response(response_text: str) -> str:
         except json.JSONDecodeError:
             pass  # fallback ohne Änderung
 
-    # 🔧 Wandle explizite "\\n" in echte Zeilenumbrüche um (falls json.loads nicht nötig war)
+    # 🔧 Wandle explizite "\\n" in echte Zeilenumbrüche um
     response_text = response_text.replace("\\n", "\n")
 
-    # Starte bei "(define"
+    # 🧹 Entferne mögliche Markdown-Codeblöcke (```pddl, ```)
+    response_text = re.sub(r"```pddl|```", "", response_text, flags=re.IGNORECASE)
+
+    # 🔍 Suche den Anfang der Domain
     start_idx = response_text.find("(define")
     if start_idx == -1:
         return ""
 
     pddl_candidate = response_text[start_idx:]
 
+    # 📐 Klammer-Balancing zur vollständigen Extraktion
     balance = 0
     end_idx = None
     for i, char in enumerate(pddl_candidate):

@@ -1,0 +1,172 @@
+Step 1: Analyzing the domain, I will follow these strategies:
+
+1. Place action definitions earlier if they are likely to be used earlier in plans, considering their structural properties. Actions with fewer preconditions or those whose effects support other actions should appear early in the domain.
+2. In precondition blocks, place conditions that are structurally central or frequently reused earlier. I will consider predicate roles such as spatial relations, resource states, and transport links.
+3. Follow the effect ordering rule, listing add effects before delete effects (i.e., `(not ...)`).
+4. Group similar predicates together in preconditions and effects, and maintain parameter consistency across all actions.
+5. Place predicates that are never modified in any `:effect` block near the top in the `:predicates` section.
+
+Step 2: Here is the fully reordered domain:
+
+(define (domain genome-edit-distance)
+(:requirements :equality :action-costs)
+  (:predicates
+   ;; Static predicate, identifies duplicate copies of genes.
+   ;; The "duplicate" relation is symmetric; "swappable" is an
+   ;; asymmetric subrelation (used to eliminate symmetric
+   ;; instantiations of the swapping operator).
+   ;;
+   ;; Note: These predicates are not used in the domain version
+   ;; with ITT operations only. They are declared only for
+   ;; interoperability with problem files that use them.
+   (duplicate ?x ?y) (swappable ?x ?y)
+
+   ;; Genome representation: The genome is a cycle, represented
+   ;; by the relation cw ("clockwise"). Each gene in the genome
+   ;; is either "normal" or "inverted". Genes that are not in
+   ;; the genome but may be inserted are "free" (and neither
+   ;; normal nor inverted), while genes that have been deleted
+   ;; are "gone". The predicate "present" is maintained as an
+   ;; abbreviation for (and (not (free ?x)) (not (gone ?x))).
+   ;;
+   ;; Note: Since this domain version implements only the ITT
+   ;; operations (i.e., no insertions or deletions), all genes are
+   ;; present from the beginning and will remain so in every
+   ;; reachable state.
+   (cw ?x ?y) (free ?x) (gone ?x) (present ?x) (normal ?x) (inverted ?x)
+
+   ;; Operation sequencing: See ged3-itt.pddl for explanation.
+   (idle) (cutting) (have-cut) (splicing) (splice-next ?x) (splicing-last)
+   (inverse-splicing) (inverse-splice-next ?x) (inverse-splicing-last) (finished)
+
+   ;; Auxiliary predicates: See ged3-itt.pddl for explanation.
+   (cut-point-1 ?x) (cut-point-2 ?x) (last-cut-point ?x)
+   (splice-point-1 ?x) (splice-point-2 ?x) (s-first ?x) (s-next ?x ?y) (s-last ?x)
+   )
+
+  (:functions
+   (total-cost)
+   )
+
+  ;; Cutting.
+  (:action begin-cut
+   :parameters (?x ?y)
+   :precondition (and (not (= ?x ?y))
+		      (idle)
+		      (cw ?x ?y))
+   :effect (and (not (idle))
+		(cutting)
+		(not (cw ?x ?y))
+		(cut-point-1 ?x)
+		(last-cut-point ?x)
+		(s-first ?y)
+		(s-last ?y))
+   )
+
+  (:action continue-cut
+   :parameters (?x ?y)
+   :precondition (and (not (= ?x ?y))
+		      (cutting)
+		      (s-last ?x)
+		      (cw ?x ?y))
+   :effect (and (not (cw ?x ?y))
+		(not (s-last ?x))
+		(s-next ?x ?y)
+		(s-last ?y))
+   )
+
+  (:action end-cut-1
+   :parameters (?x ?y)
+   :precondition (and (not (= ?x ?y))
+		      (cutting)
+		      (s-last ?x)
+		      (cw ?x ?y))
+   :effect (and (not (cw ?x ?y))
+		(cut-point-2 ?y))
+   )
+
+  (:action end-cut-2
+   :parameters (?x ?y)
+   :precondition (and (cutting)
+		      (cut-point-1 ?x)
+		      (cut-point-2 ?y))
+   :effect (and (not (cutting))
+		(not (cut-point-1 ?x))
+		(not (cut-point-2 ?y))
+		(have-cut)
+		(cw ?x ?y))
+   )
+
+  ;; Splicing.
+  (:action begin-transpose-splice
+   :parameters (?x ?y)
+   :precondition (and (not (= ?x ?y))
+		      (have-cut)
+		      (cw ?x ?y))
+   :effect (and (not (have-cut))
+		(not (cw ?x ?y))
+		(splicing)
+		(splice-point-1 ?x)
+		(splice-point-2 ?y)
+		(increase (total-cost) 2))
+   )
+
+  (:action continue-splice-1
+   :parameters (?x ?y)
+   :precondition (and (splicing)
+		      (s-first ?x)
+		      (s-next ?x ?y))
+   :effect (and (not (s-first ?x))
+		(not (s-next ?x ?y))
+		(not (splicing))
+		(s-first ?y)
+		(splice-next ?x))
+   )
+
+  (:action continue-splice-2
+   :parameters (?x ?y)
+   :precondition (and (splice-next ?x)
+		      (splice-point-1 ?y))
+   :effect (and (not (splice-point-1 ?y))
+		(not (splice-next ?x))
+		(cw ?y ?x)
+		(splice-point-1 ?x)
+		(splicing))
+   )
+
+  (:action end-splice-1
+   :parameters (?x ?y)
+   :precondition (and (splicing)
+		      (splice-point-1 ?y)
+		      (s-first ?x)
+		      (s-last ?x))
+   :effect (and (not (splicing))
+		(not (s-first ?x))
+		(not (s-last ?x))
+		(not (splice-point-1 ?y))
+		(splicing-last)
+		(cw ?y ?x)
+		(splice-point-1 ?x))
+   )
+
+  (:action end-splice-2
+   :parameters (?x ?y)
+   :precondition (and (splicing-last)
+		      (splice-point-1 ?x)
+		      (splice-point-2 ?y))
+   :effect (and (not (splicing-last))
+		(not (splice-point-1 ?x))
+		(not (splice-point-2 ?y))
+		(finished)
+		(cw ?x ?y))
+   )
+
+  ;; Inverse splicing.
+  (:action begin-transverse-splice
+   :parameters (?x ?y)
+   :precondition (and (not (= ?x ?y))
+		      (have-cut)
+		      (cw ?x ?y))
+   :effect (and (not (have-cut))
+		(not (cw ?x ?y))
+		(inverse-splicing)

@@ -1,6 +1,15 @@
 def generate_prompt(domain_str: str) -> str:
-    return f"""Reorder this PDDL domain to improve planner efficiency by reordering actions, preconditions, and effects — without changing the meaning.
+    return f"""You are a PDDL domain expert.
 
-Do not rename or delete anything. Only change order to follow best practices in planning literature.
+Your task is to reorder the following PDDL domain file to improve AI planner efficiency (coverage, time, quality) via
+reordering actions, preconditions, and effects. You may not change the semantics of the domain in any way.
+Follow best practices from planning literature.
 
-Return only the reordered PDDL domain: \n\n{domain_str}"""
+IMPORTANT:
+- Do NOT rename, remove, or semantically change any predicates, parameters, or actions.
+- Do NOT add comments, explanations, or formatting.
+- Return ONLY a valid reordered PDDL domain file.
+
+DOMAIN TO REORDER:
+{domain_str}
+"""

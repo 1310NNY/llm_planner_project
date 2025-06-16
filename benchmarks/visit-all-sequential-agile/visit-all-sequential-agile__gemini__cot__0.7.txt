@@ -1,0 +1,20 @@
+Step 1: Analyze the domain.
+The domain `grid-visit-all` describes a robot navigating a grid.  The key predicate for action selection is `at-robot`.  `connected` represents static links between locations and should be placed early in the predicates. `visited` is only added and never deleted, suggesting a specific plan progression.  The single action, `move`, should prioritize the robot's current position (`?curpos`) before the destination (`?nextpos`) for consistency. Within `:effect`, `(at-robot ?nextpos)` should appear before `(not (at-robot ?curpos))` following the add-before-delete principle.
+
+
+Step 2: Apply your strategy and output the fully reordered domain.
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates (connected ?x ?y - place)
+             (at-robot ?x - place)
+             (visited ?x - place)
+)
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (at-robot ?curpos) (connected ?curpos ?nextpos))
+:effect (and (at-robot ?nextpos)
+             (visited ?nextpos)
+             (not (at-robot ?curpos)))
+)
+)

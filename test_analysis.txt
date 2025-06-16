@@ -1,0 +1,19 @@
+Step 1: Domain Analysis
+
+The given domain is for the Transport sequential problem. Here's a summary of the reordering strategy:
+
+1. **Action ordering**: Based on structural cues, `drive` has fewer preconditions (2) than `pick-up` and `drop` (4 each). Therefore, `drive` should appear before `pick-up` and `drop`.
+
+2. **Precondition ordering**: In `:precondition` blocks, `at ?x - locatable ?v - location` and `road ?l1 ?l2 - location` are structurally central and frequently reused. They should appear early.
+
+3. **Effect ordering**: In `:effect` blocks, add effects before delete effects.
+
+4. **Predicate grouping**: Group similar predicates together in preconditions and effects. For example, `capacity ?v - vehicle ?s1 - capacity-number` and `capacity-predecessor ?s1 ?s2 - capacity-number` should be grouped.
+
+5. **Parameter consistency**: Use the same parameter ordering across all actions where possible.
+
+6. **Static predicate grouping**: In the `:predicates` section, place predicates that are never modified in any `:effect` block (i.e., static predicates) near the top.
+
+Step 2: Reorder the Domain
+
+```pddl

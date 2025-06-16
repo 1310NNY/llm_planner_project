@@ -1,0 +1,83 @@
+Step 1: Analyze the domain.
+The domain represents a transport problem where vehicles move between locations, pick up and drop off packages.  The `drive` action is fundamental as it's a precondition for other actions.  `capacity-predecessor` and `road` are static.  `pick-up` and `drop` are symmetrical and related to capacity changes.
+
+Planned reordering strategy:
+- Place `road` and `capacity-predecessor` first in predicates as they are static.
+- Place `drive` before `pick-up` and `drop` as it is fundamental for them.
+- Group related preconditions (e.g., those involving `at` or `capacity`).
+- Ensure add effects come before delete effects within each action.
+- Maintain consistent parameter ordering across actions.
+
+
+
+Step 2: Apply your strategy and output the fully reordered domain.
+
+(define (domain transport)
+  (:requirements :typing :action-costs)
+  (:types
+        location target locatable - object
+        vehicle package - locatable
+        capacity-number - object
+  )
+
+  (:predicates 
+     (road ?l1 ?l2 - location)
+     (capacity-predecessor ?s1 ?s2 - capacity-number)
+     (at ?x - locatable ?v - location)
+     (in ?x - package ?v - vehicle)
+     (capacity ?v - vehicle ?s - capacity-number)
+  )
+
+  (:functions
+     (road-length ?l1 ?l2 - location) - number
+     (total-cost) - number
+  )
+
+  (:action drive
+    :parameters (?v - vehicle ?l1 ?l2 - location)
+    :precondition (and
+        (road ?l1 ?l2)
+        (at ?v ?l1)
+      )
+    :effect (and
+        (at ?v ?l2)
+        (not (at ?v ?l1))
+        (increase (total-cost) (road-length ?l1 ?l2))
+      )
+  )
+
+  (:action pick-up
+    :parameters (?v - vehicle ?l - location ?p - package ?s1 ?s2 - capacity-number)
+    :precondition (and
+        (at ?v ?l)
+        (at ?p ?l)
+        (capacity-predecessor ?s1 ?s2)
+        (capacity ?v ?s2)
+      )
+    :effect (and
+        (in ?p ?v)
+        (capacity ?v ?s1)
+        (not (at ?p ?l))
+        (not (capacity ?v ?s2))
+        (increase (total-cost) 1)
+      )
+  )
+
+  (:action drop
+    :parameters (?v - vehicle ?l - location ?p - package ?s1 ?s2 - capacity-number)
+    :precondition (and
+        (at ?v ?l)
+        (in ?p ?v)
+        (capacity-predecessor ?s1 ?s2)
+        (capacity ?v ?s1)
+      )
+    :effect (and
+        (at ?p ?l)
+        (capacity ?v ?s2)
+        (not (in ?p ?v))
+        (not (capacity ?v ?s1))
+        (increase (total-cost) 1)
+      )
+  )
+
+)

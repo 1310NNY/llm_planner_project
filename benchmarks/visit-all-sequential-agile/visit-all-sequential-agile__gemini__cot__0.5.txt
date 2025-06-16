@@ -1,0 +1,17 @@
+Step 1: Analyze the domain.
+The domain involves a robot navigating a grid.  The key predicate for action selection is `at-robot`.  `connected` is static and should be placed first.  Within the `move` action, the preconditions should be ordered based on relevance to the action's purpose (movement), and effects should be ordered add then delete.
+
+Step 2: Apply your strategy and output the fully reordered domain.
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types        place - object)
+(:predicates (connected ?x ?y - place)
+             (at-robot ?x - place)
+             (visited ?x - place)
+)
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (connected ?curpos ?nextpos) (at-robot ?curpos))
+:effect (and (at-robot ?nextpos) (visited ?nextpos) (not (at-robot ?curpos)))
+)
+)

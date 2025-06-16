@@ -1,0 +1,122 @@
+(define (domain genome-edit-distance)
+(:requirements :equality :action-costs)
+  (:predicates
+   ;; Static predicates first
+   (duplicate ?x ?y)
+   (swappable ?x ?y)
+   
+   ;; Operation sequencing predicates
+   (idle)
+   (cutting)
+   (have-cut)
+   (splicing)
+   (splicing-last)
+   (inverse-splicing)
+   (inverse-splicing-last)
+   (finished)
+   
+   ;; Auxiliary predicates
+   (splice-next ?x)
+   (inverse-splice-next ?x)
+   (cut-point-1 ?x)
+   (cut-point-2 ?x)
+   (last-cut-point ?x)
+   (splice-point-1 ?x)
+   (splice-point-2 ?x)
+   (s-first ?x)
+   (s-next ?x ?y)
+   (s-last ?x)
+   
+   ;; Genome representation predicates
+   (cw ?x ?y)
+   (free ?x)
+   (gone ?x)
+   (present ?x)
+   (normal ?x)
+   (inverted ?x)
+   )
+
+  (:functions
+   (total-cost)
+   )
+
+  ;; Simple actions first
+  (:action invert-single-gene-A
+   :parameters (?x)
+   :precondition (and (idle)
+                      (normal ?x))
+   :effect (and (not (normal ?x))
+                (inverted ?x)
+                (increase (total-cost) 1))
+   )
+
+  (:action invert-single-gene-B
+   :parameters (?x)
+   :precondition (and (idle)
+                      (inverted ?x))
+   :effect (and (not (inverted ?x))
+                (normal ?x)
+                (increase (total-cost) 1))
+   )
+
+  (:action reset-1
+   :parameters (?x)
+   :precondition (and (finished)
+                      (last-cut-point ?x))
+   :effect (and (not (finished))
+                (not (last-cut-point ?x))
+                (idle))
+   )
+
+  ;; Cutting operations
+  (:action begin-cut
+   :parameters (?x ?y)
+   :precondition (and (idle)
+                      (cw ?x ?y)
+                      (not (= ?x ?y)))
+   :effect (and (not (idle))
+                (cutting)
+                (not (cw ?x ?y))
+                (cut-point-1 ?x)
+                (last-cut-point ?x)
+                (s-first ?y)
+                (s-last ?y))
+   )
+
+  (:action continue-cut
+   :parameters (?x ?y)
+   :precondition (and (cutting)
+                      (s-last ?x)
+                      (cw ?x ?y)
+                      (not (= ?x ?y)))
+   :effect (and (not (cw ?x ?y))
+                (not (s-last ?x))
+                (s-next ?x ?y)
+                (s-last ?y))
+   )
+
+  (:action end-cut-1
+   :parameters (?x ?y)
+   :precondition (and (cutting)
+                      (s-last ?x)
+                      (cw ?x ?y)
+                      (not (= ?x ?y)))
+   :effect (and (not (cw ?x ?y))
+                (cut-point-2 ?y))
+   )
+
+  (:action end-cut-2
+   :parameters (?x ?y)
+   :precondition (and (cutting)
+                      (cut-point-1 ?x)
+                      (cut-point-2 ?y))
+   :effect (and (not (cutting))
+                (not (cut-point-1 ?x))
+                (not (cut-point-2 ?y))
+                (have-cut)
+                (cw ?x ?y))
+   )
+
+  ;; Splicing operations
+  (:action begin-transpose-splice
+   :parameters (?x ?y

@@ -1,0 +1,15 @@
+Step 1: Analyze the domain.
+The domain `grid-visit-all` describes a robot navigating a grid. The robot can move between connected places. The goal (implicit, defined in problem files) is likely to visit all places.  The `connected` predicate is static as it represents the grid structure and never changes. The reordering strategy will focus on bringing the `connected` predicate to the top, ordering the `move` action's effects (add before delete), and maintaining parameter consistency which is already present.
+
+Step 2: Apply your strategy and output the fully reordered domain.
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates (connected ?x ?y - place)
+             (at-robot ?x - place)
+             (visited ?x - place))
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (connected ?curpos ?nextpos) (at-robot ?curpos))
+:effect (and (at-robot ?nextpos) (visited ?nextpos) (not (at-robot ?curpos))))
+)

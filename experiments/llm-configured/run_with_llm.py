@@ -13,11 +13,11 @@ import csv
 load_dotenv()
 
 # 🔧 Konfiguration
-domain_file = Path("benchmarks/blocks-strips-typed/domain.pddl")
+domain_file = Path("benchmarks/transport-sequential-agile/domain.pddl")
 instances_dir = domain_file.parent / "instances"
 planner = "fd"
 llm_name = "gpt-4o"
-prompt_style = "zero_shot_long"
+prompt_style = "cot"
 llm_temperature = 0.2  
 top_p = 1.0
 max_tokens = None

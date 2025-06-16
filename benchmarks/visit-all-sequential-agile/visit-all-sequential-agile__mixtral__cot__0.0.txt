@@ -1,0 +1,30 @@
+Step 1: Analysis and Strategy
+
+The domain is about a robot visiting all places in a grid. The action move lets the robot move from one connected place to another, marking it as visited.
+
+My strategy is as follows:
+
+1. Action ordering: No need to reorder actions since there's only one action move.
+2. Precondition ordering: Keep the existing order since it has only one precondition.
+3. Effect ordering: Change the order of effects in move to have add effects before delete effects.
+4. Predicate grouping: Group similar predicates in preconditions and effects.
+5. Parameter consistency: Maintain the existing order of parameters.
+6. Static predicate grouping: Since no predicates are never modified, this rule does not apply.
+
+Step 2: Reordered Domain
+
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates (at-robot ?x - place)
+	     (visited ?x - place)
+	     (connected ?x ?y - place)
+)
+
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (at-robot ?curpos) (connected ?curpos ?nextpos))
+:effect (and (not (at-robot ?curpos)) (at-robot ?nextpos) (visited ?nextpos))
+)
+
+)

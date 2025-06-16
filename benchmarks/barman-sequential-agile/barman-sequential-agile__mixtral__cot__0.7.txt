@@ -1,0 +1,94 @@
+Step 1: Analyze the domain and summarize the planned reordering strategy
+
+1. Action ordering: The `grasp` and `leave` actions should be placed early as they are likely to be used often. Actions that modify the level of the shaker, such as `pour-shot-to-clean-shaker`, `pour-shot-to-used-shaker`, and `empty-shaker`, should also be placed early due to their structural importance.
+
+2. Precondition ordering: Preconditions involving the `handempty` and `holding` predicates are frequently used. They should be placed earlier in the preconditions blocks.
+
+3. Effect ordering: Ensure add effects are listed before delete effects in `:effect` blocks.
+
+4. Predicate grouping: Group similar predicates together in preconditions and effects. For instance, `(holding ?h1 ?s)` and `(contains ?s ?i)` are used in multiple preconditions and effects, so they should be grouped together.
+
+5. Parameter consistency: Maintain consistent parameter ordering (e.g., `?h1 ?h2 - hand`, `?s - shot`, `?i - ingredient`, `?d - dispenser`, etc.).
+
+6. Static predicate grouping: Place predicates that are never modified in any `:effect` block near the top of the `:predicates` section.
+
+Step 2: Apply the strategy and output the reordered domain
+
+(define (domain barman)
+  (:requirements :strips :typing)
+  (:types hand level beverage dispenser container - object
+  	  ingredient cocktail - beverage
+          shot shaker - container)
+  (:predicates  (handempty ?h - hand)
+                (holding ?h - hand ?c - container)
+                (ontable ?c - container)
+                (empty ?c - container)
+		(contains ?c - container ?b - beverage)
+                (clean ?c - container)
+                (used ?c - container ?b - beverage)
+		(dispenses ?d - dispenser ?i - ingredient)
+                (shaker-empty-level ?s - shaker ?l - level)
+                (shaker-level ?s - shaker ?l - level)
+                (next ?l1 ?l - level)
+                (unshaked ?s - shaker)
+                (shaked ?s - shaker)
+                (cocktail-part1 ?c - cocktail ?i - ingredient)
+                (cocktail-part2 ?c - cocktail ?i - ingredient))
+
+  (:action grasp
+             :parameters (?h - hand ?c - container)
+             :precondition (and (ontable ?c) (handempty ?h))
+             :effect (and (not (ontable ?c))
+	     	     	  (not (handempty ?h))
+			  (holding ?h ?c)))
+
+  (:action leave
+             :parameters (?h - hand ?c - container)
+             :precondition (holding ?h ?c)
+             :effect (and (not (holding ?h ?c))
+	     	     	  (handempty ?h)
+			  (ontable ?c)))
+
+  (:action clean-shot
+  	   :parameters (?s - shot ?b - beverage ?h1 ?h2 - hand)
+           :precondition (and (holding ?h1 ?s)
+                              (handempty ?h2)	   		      
+			      (empty ?s)
+                              (used ?s ?b))
+           :effect (and (not (used ?s ?b))
+	   	   	(clean ?s)))
+
+  (:action fill-shot
+           :parameters (?s - shot ?i - ingredient ?h1 ?h2 - hand ?d - dispenser)
+           :precondition (and (holding ?h1 ?s)
+                              (handempty ?h2)
+	   		      (dispenses ?d ?i)
+                              (empty ?s)
+			      (clean ?s))
+           :effect (and (not (empty ?s))
+	   	   	(contains ?s ?i)
+	   	   	(not (clean ?s))
+			(used ?s ?i)))
+
+  (:action refill-shot
+           :parameters (?s - shot ?i - ingredient ?h1 ?h2 - hand ?d - dispenser)
+           :precondition (and (holding ?h1 ?s)	   		      
+                              (handempty ?h2)
+	   		      (dispenses ?d ?i)
+                              (empty ?s)
+			      (used ?s ?i))
+           :effect (and (not (empty ?s))
+                        (contains ?s ?i)))
+
+  (:action pour-shot-to-clean-shaker
+           :parameters (?s - shot ?i - ingredient ?d - shaker ?h1 - hand ?l ?l1 - level)
+           :precondition (and (holding ?h1 ?s)
+                              (contains ?s ?i)
+                              (empty ?d)
+	   		      (clean ?d)
+                              (shaker-level ?d ?l)
+                              (next ?l ?l1))
+           :effect (and (not (contains ?s ?i))
+	   	   	(empty ?s)
+			(contains ?d
+```

@@ -1,0 +1,117 @@
+Step 1: Analyzing the domain
+
+The given domain is for the genome-edit-distance problem, which involves editing a genome by cutting and splicing genes. The domain has several action types for cutting, splicing, and inverse splicing operations. The main challenge here is the sequence of actions and the order of conditions and effects within them.
+
+Reordering strategy:
+
+1. Group similar predicates together in preconditions and effects.
+2. Use the same parameter ordering across all actions where possible.
+3. Place actions earlier in the domain if they are likely to be used earlier in plans.
+4. In `:precondition` and `:effect` blocks, place conditions that are structurally central or frequently reused earlier.
+5. In `:effect` blocks, list add effects before delete effects (i.e., `(not ...)`).
+
+Step 2: Applying the strategy and outputting the reordered domain
+
+(define (domain genome-edit-distance)
+(:requirements :equality :action-costs)
+(:predicates
+ ;; Static predicate, identifies duplicate copies of genes.
+ (duplicate ?x ?y)
+ (swappable ?x ?y)
+ ;; Genome representation
+ (cw ?x ?y)
+ (free ?x)
+ (gone ?x)
+ (present ?x)
+ (normal ?x)
+ (inverted ?x)
+ ;; Operation sequencing
+ (idle)
+ (cutting)
+ (have-cut)
+ (splicing)
+ (splice-next ?x)
+ (splicing-last)
+ (inverse-splicing)
+ (inverse-splice-next ?x)
+ (inverse-splicing-last)
+ (finished)
+ ;; Auxiliary predicates
+ (cut-point-1 ?x)
+ (cut-point-2 ?x)
+ (last-cut-point ?x)
+ (splice-point-1 ?x)
+ (splice-point-2 ?x)
+ (s-first ?x)
+ (s-next ?x ?y)
+ (s-last ?x))
+
+(:functions
+ (total-cost))
+
+;; Cutting
+(progn
+(:action begin-cut
+	:parameters (?x ?y)
+	:precondition (and (not (= ?x ?y))
+			  (idle)
+			  (cw ?x ?y))
+	:effect (and (not (idle))
+		    (cutting)
+		    (not (cw ?x ?y))
+		    (cut-point-1 ?x)
+		    (last-cut-point ?x)
+		    (s-first ?y)
+		    (s-last ?y)))
+
+(:action continue-cut
+	:parameters (?x ?y)
+	:precondition (and (not (= ?x ?y))
+			  (cutting)
+			  (s-last ?x)
+			  (cw ?x ?y))
+	:effect (and (not (cw ?x ?y))
+		    (not (s-last ?x))
+		    (s-next ?x ?y)
+		    (s-last ?y)))
+
+(:action end-cut-1
+	:parameters (?x ?y)
+	:precondition (and (not (= ?x ?y))
+			  (cutting)
+			  (s-last ?x)
+			  (cw ?x ?y))
+	:effect (and (not (cw ?x ?y))
+		    (cut-point-2 ?y)))
+
+(:action end-cut-2
+	:parameters (?x ?y)
+	:precondition (and (cutting)
+			  (cut-point-1 ?x)
+			  (cut-point-2 ?y))
+	:effect (and (not (cutting))
+		    (not (cut-point-1 ?x))
+		    (not (cut-point-2 ?y))
+		    (have-cut)
+		    (cw ?x ?y))))
+
+;; Splicing
+(progn
+(:action begin-transpose-splice
+	:parameters (?x ?y)
+	:precondition (and (not (= ?x ?y))
+			  (have-cut)
+			  (cw ?x ?y))
+	:effect (and (not (have-cut))
+		    (not (cw ?x ?y))
+		    (splicing)
+		    (splice-point-1 ?x)
+		    (splice-point-2 ?y)
+		    (increase (total-cost) 2)))
+
+(:action continue-splice-1
+	:parameters (?x ?y)
+	:precondition (and (splicing)
+			  (s-first ?x)
+			  (s-next ?x ?y
+```

@@ -1,0 +1,30 @@
+Step 1: Analysis and Strategy
+
+The domain is about a robot visiting all places in a grid. The action move lets the robot move from one connected place to another, marking it as visited.
+
+My strategy is to:
+1. Move action move up to be the first action since it is the only action and is likely to be used earlier in the plan.
+2. Place the at-robot precondition first in move's precondition list since it is a structural prerequisite for the action.
+3. Follow the effect ordering rule by listing add effects before delete effects in move's effect block.
+4. Group similar predicates in move's precondition and effect blocks.
+5. Place the visited predicate last in move's effect block since it is the only effect that is never modified.
+6. Place the connected and visited predicates at the top in the predicates section since they are never modified.
+
+Step 2: Reordered Domain
+
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates
+	(connected ?x - place)
+	(visited ?x - place)
+	(at-robot ?x - place)
+)
+
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (at-robot ?curpos) (connected ?curpos ?nextpos))
+:effect (and (not (at-robot ?curpos)) (at-robot ?nextpos) (visited ?nextpos))
+)
+
+)

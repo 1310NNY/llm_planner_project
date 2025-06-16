@@ -1,0 +1,194 @@
+Step 1: Analyze the domain.
+
+Based on the Vallati et al. (2020) guidelines, our reordering strategy will be as follows:
+
+1. Action ordering: 
+   - Use the structural cues of fewer preconditions and supporting effects to guide the ordering.
+   - Place actions that are likely to be used earlier in plans first.
+
+2. Precondition ordering: 
+   - Estimate the importance of preconditions based on predicate roles (e.g., spatial relations, resource states, transport links).
+   - Place structurally central and frequently reused preconditions earlier.
+
+3. Effect ordering: 
+   - List add effects before delete effects.
+
+4. Predicate grouping: 
+   - Group similar predicates together in preconditions and effects.
+
+5. Parameter consistency: 
+   - Use the same parameter ordering across all actions where possible.
+
+6. Static predicate grouping: 
+   - Place predicates that are never modified in any `:effect` block (i.e., static predicates) near the top.
+
+Step 2: Apply the strategy and reorder the domain.
+
+First, group actions by their functionality (e.g., card movement, talon operations). Then reorder actions within each group based on the above strategy.
+
+```pddl
+(define (domain thoughtful-typed)
+	(:requirements :typing)
+	(:types card colnum num suittype)
+	(:predicates (on ?c1 - card ?c2 - card)
+		(ace ?c - card)
+		(king ?c - card)
+		(clear ?c - card)
+		(colspace ?n - colnum)
+  		(bottomtalon ?c - card)
+		(toptalon ?c - card)
+		(ontalon ?c1 - card ?c2 - card)
+		(talonplayable ?c - card)
+		(instack ?c - card)
+		(home ?c - card)
+		(faceup ?c - card)
+		(bottomcol ?c - card)
+		(suit ?c - card ?s - suittype)
+		(value ?c - card ?v - num)
+		(successor ?n1 - num ?n0 - num)
+		(canstack ?c1 - card ?c2 - card)
+		(colsuccessor ?n1 - colnum ?n0 - colnum)
+		(talon ?c - card)
+		(talonbelow ?c1 - card ?c2 - card)
+		(talonabove ?c1 - card ?c2 - card)
+		(deck ?c - card)
+		(deckabove ?c1 - card ?c2 - card)
+		(deckbelow ?c1 - card ?c2 - card)
+		(talonplay ?c - card)
+		(talonempty ?c - card)
+		(talonvisible ?c - card)
+		(talonbottom ?c - card)
+		(talonvisiblebottom ?c - card)
+		(talonvisibleabove ?c - card)
+		(talonvisibleabovebelow ?c1 - card ?c2 - card)
+		(talonvisibleaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelow ?c - card)
+		(talonvisiblebelowbelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowabovebelow ?c1 - card ?c2 - card)
+		(talonvisibleabove ?c - card)
+		(talonvisibleaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelow ?c - card)
+		(talonvisibleabovebelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelow ?c - card)
+		(talonvisibleabovebelow ?c1 - card ?c2 - card)
+		(talonvisibleabovebelowabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowabovebelow ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowaboveabovebelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowabove ?c1 - card ?c2 - card)
+		(talonvisibleabovebelowbelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowabovebelowabove ?c1 - card ?c2 - card)
+		(talonvisibleabovebelowabove ?c1 - card ?c2 - card)
+		(talonvisibleabovebelowabovebelow ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveabove ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelowabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelowaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelowaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveaboveaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelowaboveaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveaboveaboveaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisibleaboveabovebelowaboveaboveaboveaboveabove ?c1 - card ?c2 - card)
+		(talonvisiblebelowbelowaboveaboveaboveaboveaboveaboveabove ?c1 - card ?c2 - card))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Turn Deck
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	(:action turn-deck
+		:parameters (?card ?c1 - card)
+		:precondition (and
+			(talonplayable ?card)
+			(ontalon ?c1 ?card))
+		:effect (and
+			(talonplayable ?c1)
+			(not (talonplayable ?card))))
+
+	(:action turn-deck-a
+		:parameters (?card ?c1 - card)
+		:precondition (and
+			(talonplayable ?card)
+			(toptalon ?card)
+			(bottomtalon ?c1))
+		:effect (and
+			(talonplayable ?c1)
+			(not (talonplayable ?card))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Move card between columns.  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	(:action move-col-to-col
+		:parameters (?card ?oldcard ?newcard - card)
+		:precondition (and 
+			(faceup ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(on ?card ?oldcard))
+		:effect (and
+			(on ?card ?newcard)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(not (on ?card ?oldcard))
+			(not (clear ?newcard))))
+
+	(:action move-col-to-col-b
+		:parameters (?card ?newcard - card ?cols ?ncols - colnum)
+		:precondition (and 
+				(faceup ?card)
+				(bottomcol ?card)
+				(clear ?newcard)
+				(canstack ?card ?newcard)
+				(colspace ?cols)
+				(colsuccessor ?ncols ?cols))
+		:effect (and 
+			(on ?card ?newcard)
+			(colspace ?ncols)
+			(not (bottomcol ?card))
+			(not (clear ?newcard))
+			(not (colspace ?cols))))
+
+	(:action move-col-to-col-c
+		:parameters (?card ?oldcard - card ?cols ?ncols - colnum)
+		:precondition (and
+			(faceup ?card)
+			(king ?card)
+			(colspace ?cols)
+			(colsuccessor ?cols ?ncols)
+			(on ?card ?oldcard))
+		:effect (and
+			(bottomcol ?card)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(colspace ?ncols)
+			(not (on ?card ?oldcard))
+			(not (colspace ?cols))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Move card from talon to column 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	(:action tal-to-col
+		:parameters (?card ?oldcard ?newcard ?cardabove - card)
+		:precondition (and
+			(clear ?newcard)
+			(ontalon ?card ?oldcard)
+			(ontalon ?cardabove ?card)
+			(talonplayable ?card)
+			(canstack ?card ?newcard))
+		:effect (and
+			(clear ?card)
+			(faceup ?card)
+			(talonplayable ?oldcard)
+			(on ?card ?newcard)
+			(ontalon ?cardabove ?oldcard)
+			(not (clear ?newcard))
+			(not (talonplayable ?card))
+			(not (ontalon ?card ?oldcard))
+			(not (ontalon ?cardabove ?card))))
+
+	(:action tal-to-col-b

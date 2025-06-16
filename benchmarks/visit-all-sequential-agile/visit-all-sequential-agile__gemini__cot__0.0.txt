@@ -1,0 +1,16 @@
+Step 1: Analyze the domain.
+The domain describes a robot navigating a grid.  The key action is `move`. The predicates `connected` is static, `at-robot` describes the robot's location, and `visited` tracks visited locations. The reordering will focus on placing the static predicate first, ordering effects (add before delete), and ensuring parameter consistency.
+
+
+Step 2: Apply your strategy and output the fully reordered domain.
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates (connected ?x ?y - place)
+             (at-robot ?x - place)
+             (visited ?x - place))
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (connected ?curpos ?nextpos) (at-robot ?curpos))
+:effect (and (at-robot ?nextpos) (visited ?nextpos) (not (at-robot ?curpos))))
+)

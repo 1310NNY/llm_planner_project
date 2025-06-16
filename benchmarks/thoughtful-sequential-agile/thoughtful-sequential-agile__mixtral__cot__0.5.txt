@@ -1,0 +1,188 @@
+Step 1: Analyzing the domain and strategy
+
+The domain consists of actions for moving cards between columns, from column to home, from talon to column, from talon to home, turning the deck, and preconditions for each action. The strategy for reordering elements to improve planner performance includes:
+
+1. Grouping similar predicates together in preconditions and effects.
+2. Placing actions earlier in the domain if they are likely to be used earlier in plans, such as actions with fewer preconditions or those whose effects support other actions.
+3. In `:precondition` and `:effect` blocks, placing conditions that are structurally central or frequently reused earlier.
+4. Listing add effects before delete effects (i.e., `(not ...)`) in `:effect` blocks.
+5. Using the same parameter ordering across all actions where possible.
+6. Placing predicates that are never modified in any `:effect` block (i.e., static predicates) near the top in the `:predicates` section.
+
+Step 2: Applying the strategy and outputting the reordered domain
+
+(define (domain thoughtful-typed)
+(:requirements :typing)
+(:types card colnum num suittype)
+(:predicates 
+	(on ?c1 - card ?c2 - card)
+	(ace ?c - card)
+	(king ?c - card)
+	(clear ?c - card)
+	(colspace ?n - colnum)
+	(bottomtalon ?c - card)
+	(toptalon ?c - card)
+	(ontalon ?c1 - card ?c2 - card)
+	(talonplayable ?c - card)
+	(instack ?c - card)
+	(home ?c - card)
+	(faceup ?c - card)
+	(bottomcol ?c - card)
+	(suit ?c - card ?s - suittype)
+	(value ?c - card ?v - num)
+	(successor ?n1 - num ?n0 - num)
+	(canstack ?c1 - card ?c2 - card)
+	(colsuccessor ?n1 - colnum ?n0 - colnum)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Move card between columns.  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; move card from one column to another
+
+(:action move-col-to-col
+	:parameters (?card ?oldcard ?newcard - card)
+	:precondition (and 
+		(faceup ?card)
+		(clear ?newcard)
+		(canstack ?card ?newcard)
+		(on ?card ?oldcard))
+	:effect(and
+		(on ?card ?newcard)
+		(clear ?oldcard)
+		(faceup ?oldcard)
+		(not (on ?card ?oldcard))
+		(not (clear ?newcard))))
+
+;; move card from one column to another - create an empty column
+
+(:action move-col-to-col-b
+	:parameters (?card ?newcard - card ?cols ?ncols - colnum)
+	:precondition (and 
+			(faceup ?card)
+			(bottomcol ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(colspace ?cols)
+			(colsuccessor ?ncols ?cols))
+	:effect (and 
+		(on ?card ?newcard)
+		(not (bottomcol ?card))
+		(not (colspace ?cols))
+		(not (clear ?newcard))
+		(colspace ?ncols)))
+
+;; send a king to an empty column
+
+(:action move-col-to-col-c
+	:parameters (?card ?oldcard - card ?cols ?ncols - colnum)
+	:precondition (and
+		(faceup ?card)
+		(king ?card)
+		(colspace ?cols)
+		(colsuccessor ?cols ?ncols)
+		(on ?card ?oldcard))
+	:effect (and
+		(bottomcol ?card)
+		(clear ?oldcard)
+		(faceup ?oldcard)
+		(not (on ?card ?oldcard))
+		(not (colspace ?cols))
+		(colspace ?ncols)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Move card from column to home 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(:action col-to-home
+	:parameters (?card ?oldcard - card ?suit - suittype ?vcard - num
+			?homecard - card ?vhomecard - num)
+	:precondition (and
+		(clear ?card)
+		(on ?card ?oldcard)
+		(home ?homecard)
+		(suit ?card ?suit)
+		(suit ?homecard ?suit)
+		(value ?card ?vcard)
+		(value ?homecard ?vhomecard)
+		(successor ?vcard ?vhomecard))
+	:effect (and
+		(home ?card)
+		(clear ?oldcard)
+		(faceup ?oldcard)
+		(on ?card ?homecard)
+		(not (on ?card ?oldcard))
+		(not (home ?homecard))
+		(not (faceup ?card))
+		(not (clear ?card))))
+
+;; Move card from column to home - create an empty column
+
+(:action col-to-home-b
+	:parameters (?card ?homecard - card ?suit - suittype ?vcard - num
+			?vhomecard - num ?cols ?ncols - colnum)
+	:precondition (and
+		(clear ?card)
+		(bottomcol ?card)
+		(home ?homecard)
+		(suit ?card ?suit)
+		(suit ?homecard ?suit)
+		(value ?card ?vcard)
+		(value ?homecard ?vhomecard)
+		(successor ?vcard ?vhomecard)
+		(colspace ?cols)
+		(colsuccessor ?ncols ?cols))
+	:effect (and
+		(home ?card)
+		(not (home ?homecard))
+		(not (faceup ?card))
+		(not (clear ?card))
+		(not (bottomcol ?card))
+		(colspace ?ncols)
+		(not (colspace ?cols))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Move card from talon to column 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(:action tal-to-col
+	:parameters (?card ?oldcard ?newcard ?cardabove - card)
+	:precondition (and
+		(clear ?newcard)
+		(ontalon ?card ?oldcard)
+		(ontalon ?cardabove ?card)
+		(talonplayable ?card)
+		(canstack ?card ?newcard))
+	:effect (and
+		(clear ?card)
+		(faceup ?card)
+		(talonplayable ?oldcard)
+		(ontalon ?cardabove ?oldcard)
+		(not (clear ?newcard))
+		(not (talonplayable ?card))
+		(not (ontalon ?card ?oldcard))
+		(not (ontalon ?cardabove ?card))))
+
+;; move card from talon to column - card is bottom card in talon
+
+(:action tal-to-col-b
+	:parameters (?card ?newcard ?cardabove - card)
+	:precondition (and
+		(clear ?newcard)
+		(ontalon ?cardabove ?card)
+		(talonplayable ?card)
+		(bottomtalon ?card)
+		(canstack ?card ?newcard))
+	:effect (and
+		(clear ?card)
+		(faceup ?card)
+		(ontalon ?cardabove ?newcard)
+		(bottomtalon ?cardabove)
+		(talonplayable ?cardabove)
+		(not (bottomtalon ?card))
+		(not (talonplayable ?card))
+		(not (clear ?newcard))
+		(not (ontalon ?cardabove ?card))))
+
+;; move

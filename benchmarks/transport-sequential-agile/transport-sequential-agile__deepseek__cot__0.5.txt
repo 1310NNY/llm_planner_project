@@ -1,0 +1,68 @@
+(define (domain transport)
+  (:requirements :typing :action-costs)
+  (:types
+    location target locatable - object
+    vehicle package - locatable
+    capacity-number - object
+  )
+
+  (:predicates
+    (road ?l1 ?l2 - location)
+    (capacity-predecessor ?s1 ?s2 - capacity-number)
+    (at ?x - locatable ?v - location)
+    (in ?x - package ?v - vehicle)
+    (capacity ?v - vehicle ?s1 - capacity-number)
+  )
+
+  (:functions
+    (road-length ?l1 ?l2 - location) - number
+    (total-cost) - number
+  )
+
+  (:action drive
+    :parameters (?v - vehicle ?l1 ?l2 - location)
+    :precondition (and
+      (road ?l1 ?l2)
+      (at ?v ?l1)
+    )
+    :effect (and
+      (at ?v ?l2)
+      (not (at ?v ?l1))
+      (increase (total-cost) (road-length ?l1 ?l2))
+    )
+  )
+
+  (:action pick-up
+    :parameters (?v - vehicle ?l - location ?p - package ?s1 ?s2 - capacity-number)
+    :precondition (and
+      (at ?v ?l)
+      (at ?p ?l)
+      (capacity ?v ?s2)
+      (capacity-predecessor ?s1 ?s2)
+    )
+    :effect (and
+      (in ?p ?v)
+      (capacity ?v ?s1)
+      (not (at ?p ?l))
+      (not (capacity ?v ?s2))
+      (increase (total-cost) 1)
+    )
+  )
+
+  (:action drop
+    :parameters (?v - vehicle ?l - location ?p - package ?s1 ?s2 - capacity-number)
+    :precondition (and
+      (at ?v ?l)
+      (in ?p ?v)
+      (capacity ?v ?s1)
+      (capacity-predecessor ?s1 ?s2)
+    )
+    :effect (and
+      (at ?p ?l)
+      (capacity ?v ?s2)
+      (not (in ?p ?v))
+      (not (capacity ?v ?s1))
+      (increase (total-cost) 1)
+    )
+  )
+)

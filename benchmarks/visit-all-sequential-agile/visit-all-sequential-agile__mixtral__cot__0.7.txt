@@ -1,0 +1,26 @@
+Step 1: Analysis and Strategy
+
+The domain is about a robot visiting all places in a grid. The main action is moving from one place to another.
+
+1. Action ordering: `move` action should be placed early since it's the only action and will be used throughout the plan.
+2. Precondition ordering: The `at-robot` and `connected` predicates are essential for the `move` action, so they should be placed earlier in the `:precondition`.
+3. Effect ordering: The `:effect` is already ordered correctly with adds before deletes.
+4. Predicate grouping: Similar predicates are already grouped in the `:predicates` section.
+5. Parameter consistency: The parameter ordering is consistent across all actions.
+6. Static predicate grouping: There are no static predicates in this domain.
+
+Step 2: Reordered Domain
+
+(define (domain grid-visit-all)
+(:requirements :typing)
+(:types place - object)
+(:predicates (at-robot ?x - place)
+	     (connected ?x ?y - place)
+	     (visited ?x - place)
+)
+(:action move
+:parameters (?curpos ?nextpos - place)
+:precondition (and (connected ?curpos ?nextpos) (at-robot ?curpos))
+:effect (and (at-robot ?nextpos) (not (at-robot ?curpos)) (visited ?nextpos))
+)
+)

@@ -1,0 +1,101 @@
+(define (domain thoughtful-typed)
+	(:requirements :typing)
+	(:types card colnum num suittype)
+	(:predicates 
+		(suit ?c - card ?s - suittype)
+		(value ?c - card ?v - num)
+		(successor ?n1 - num ?n0 - num)
+		(colsuccessor ?n1 - colnum ?n0 - colnum)
+		(canstack ?c1 - card ?c2 - card)
+		(on ?c1 - card ?c2 - card)
+		(clear ?c - card)
+		(faceup ?c - card)
+		(bottomcol ?c - card)
+		(colspace ?n - colnum)
+		(ace ?c - card)
+		(king ?c - card)
+		(bottomtalon ?c - card)
+		(toptalon ?c - card)
+		(ontalon ?c1 - card ?c2 - card)
+		(talonplayable ?c - card)
+		(instack ?c - card)
+		(home ?c - card)
+	)
+
+	(:action move-col-to-col
+		:parameters (?card ?oldcard ?newcard - card)
+		:precondition (and 
+			(faceup ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(on ?card ?oldcard))
+		:effect(and
+			(on ?card ?newcard)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(not (on ?card ?oldcard))
+			(not (clear ?newcard))))
+
+	(:action move-col-to-col-b
+		:parameters (?card ?newcard - card ?cols ?ncols - colnum)
+		:precondition (and 
+			(faceup ?card)
+			(bottomcol ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(colspace ?cols)
+			(colsuccessor ?ncols ?cols))
+		:effect (and 
+			(on ?card ?newcard)
+			(colspace ?ncols)
+			(not (bottomcol ?card))
+			(not (clear ?newcard))
+			(not (colspace ?cols))))
+
+	(:action move-col-to-col-c
+		:parameters (?card ?oldcard - card ?cols ?ncols - colnum)
+		:precondition (and
+			(faceup ?card)
+			(king ?card)
+			(colspace ?cols)
+			(colsuccessor ?cols ?ncols)
+			(on ?card ?oldcard))
+		:effect (and
+			(bottomcol ?card)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(colspace ?ncols)
+			(not (on ?card ?oldcard))
+			(not (colspace ?cols))))
+
+	(:action tal-to-col
+		:parameters (?card ?oldcard ?newcard ?cardabove - card)
+		:precondition (and
+			(clear ?newcard)
+			(ontalon ?card ?oldcard)
+			(ontalon ?cardabove ?card)
+			(talonplayable ?card)
+			(canstack ?card ?newcard))
+		:effect (and
+			(clear ?card)
+			(faceup ?card)
+			(talonplayable ?oldcard)
+			(on ?card ?newcard)
+			(ontalon ?cardabove ?oldcard)
+			(not (clear ?newcard))
+			(not (talonplayable ?card))
+			(not (ontalon ?card ?oldcard))
+			(not (ontalon ?cardabove ?card))))
+
+	(:action tal-to-col-b
+		:parameters (?card ?newcard ?cardabove - card)
+		:precondition (and
+			(clear ?newcard)
+			(ontalon ?cardabove ?card)
+			(talonplayable ?card)
+			(bottomtalon ?card)
+			(canstack ?card ?newcard))
+		:effect (and
+			(clear ?card)
+			(faceup ?card)
+			(on

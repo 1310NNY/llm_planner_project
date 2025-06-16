@@ -1,0 +1,100 @@
+(define (domain thoughtful-typed)
+	(:requirements :typing)
+	(:types card colnum num suittype)
+	(:predicates 
+		(suit ?c - card ?s - suittype)
+		(value ?c - card ?v - num)
+		(successor ?n1 - num ?n0 - num)
+		(colsuccessor ?n1 - colnum ?n0 - colnum)
+		(canstack ?c1 - card ?c2 - card)
+		(on ?c1 - card ?c2 - card)
+		(clear ?c - card)
+		(faceup ?c - card)
+		(bottomcol ?c - card)
+		(colspace ?n - colnum)
+		(ace ?c - card)
+		(king ?c - card)
+		(bottomtalon ?c - card)
+		(toptalon ?c - card)
+		(ontalon ?c1 - card ?c2 - card)
+		(talonplayable ?c - card)
+		(instack ?c - card)
+		(home ?c - card)
+	)
+
+	(:action move-col-to-col
+		:parameters (?card ?oldcard ?newcard - card)
+		:precondition (and 
+			(faceup ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(on ?card ?oldcard))
+		:effect(and
+			(on ?card ?newcard)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(not (on ?card ?oldcard))
+			(not (clear ?newcard))))
+
+	(:action move-col-to-col-b
+		:parameters (?card ?newcard - card ?cols ?ncols - colnum)
+		:precondition (and 
+			(faceup ?card)
+			(bottomcol ?card)
+			(clear ?newcard)
+			(canstack ?card ?newcard)
+			(colspace ?cols)
+			(colsuccessor ?ncols ?cols))
+		:effect (and 
+			(on ?card ?newcard)
+			(colspace ?ncols)
+			(not (bottomcol ?card))
+			(not (clear ?newcard))
+			(not (colspace ?cols))))
+
+	(:action move-col-to-col-c
+		:parameters (?card ?oldcard - card ?cols ?ncols - colnum)
+		:precondition (and
+			(faceup ?card)
+			(king ?card)
+			(colspace ?cols)
+			(colsuccessor ?cols ?ncols)
+			(on ?card ?oldcard))
+		:effect (and
+			(bottomcol ?card)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(colspace ?ncols)
+			(not (on ?card ?oldcard))
+			(not (colspace ?cols))))
+
+	(:action col-to-home
+		:parameters (?card ?oldcard - card ?suit - suittype ?vcard - num
+				?homecard - card ?vhomecard - num)
+		:precondition (and
+			(clear ?card)
+			(on ?card ?oldcard)
+			(home ?homecard)
+			(suit ?card ?suit)
+			(suit ?homecard ?suit)
+			(value ?card ?vcard)
+			(value ?homecard ?vhomecard)
+			(successor ?vcard ?vhomecard))
+		:effect (and
+			(home ?card)
+			(clear ?oldcard)
+			(faceup ?oldcard)
+			(on ?card ?homecard)
+			(not (on ?card ?oldcard))
+			(not (home ?homecard))
+			(not (faceup ?card))
+			(not (clear ?card))))
+
+	(:action col-to-home-b
+		:parameters (?card ?homecard - card ?suit - suittype ?vcard - num 
+			?vhomecard - num ?cols ?ncols - colnum)
+		:precondition (and
+			(clear ?card)
+			(bottomcol ?card)
+			(home ?homecard)
+			(suit ?card ?suit)

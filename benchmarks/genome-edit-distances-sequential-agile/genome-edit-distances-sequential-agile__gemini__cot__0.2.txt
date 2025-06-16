@@ -1,0 +1,145 @@
+Step 1: Analyze the domain.
+The domain represents genome editing operations. Actions represent steps in cutting, splicing, and inverting gene sequences.  The ordering of actions and predicates within actions can be improved following the provided guidelines. Static predicates will be moved to the top of the predicate list.  Action sequences related to each operation (cutting, splicing, inverse splicing) will be grouped together. Within actions, add effects will precede delete effects, and predicates will be grouped by functionality.  Consistent parameter ordering will be maintained.
+
+Step 2: Apply your strategy and output the fully reordered domain.
+
+(define (domain genome-edit-distance)
+(:requirements :equality :action-costs)
+  (:predicates
+   (duplicate ?x ?y)
+   (swappable ?x ?y)
+   (present ?x)
+   (cw ?x ?y)
+   (free ?x)
+   (gone ?x)
+   (normal ?x)
+   (inverted ?x)
+   (idle)
+   (cutting)
+   (have-cut)
+   (splicing)
+   (splice-next ?x)
+   (splicing-last)
+   (inverse-splicing)
+   (inverse-splice-next ?x)
+   (inverse-splicing-last)
+   (finished)
+   (cut-point-1 ?x)
+   (cut-point-2 ?x)
+   (last-cut-point ?x)
+   (splice-point-1 ?x)
+   (splice-point-2 ?x)
+   (s-first ?x)
+   (s-next ?x ?y)
+   (s-last ?x)
+   )
+  (:functions
+   (total-cost)
+   )
+  (:action begin-cut
+   :parameters (?x ?y)
+   :precondition (and (idle) (cw ?x ?y) (not (= ?x ?y)))
+   :effect (and (cutting) (s-first ?y) (s-last ?y) (cut-point-1 ?x) (last-cut-point ?x)
+                (not (idle)) (not (cw ?x ?y)))
+   )
+  (:action continue-cut
+   :parameters (?x ?y)
+   :precondition (and (cutting) (cw ?x ?y) (s-last ?x) (not (= ?x ?y)))
+   :effect (and (s-next ?x ?y) (s-last ?y) (not (cw ?x ?y)) (not (s-last ?x)))
+   )
+  (:action end-cut-1
+   :parameters (?x ?y)
+   :precondition (and (cutting) (cw ?x ?y) (s-last ?x) (not (= ?x ?y)))
+   :effect (and (cut-point-2 ?y) (not (cw ?x ?y)))
+   )
+  (:action end-cut-2
+   :parameters (?x ?y)
+   :precondition (and (cutting) (cut-point-1 ?x) (cut-point-2 ?y))
+   :effect (and (have-cut) (cw ?x ?y) (not (cutting)) (not (cut-point-1 ?x)) (not (cut-point-2 ?y)))
+   )
+  (:action begin-transpose-splice
+   :parameters (?x ?y)
+   :precondition (and (have-cut) (cw ?x ?y) (not (= ?x ?y)))
+   :effect (and (splicing) (splice-point-1 ?x) (splice-point-2 ?y) (increase (total-cost) 2) (not (have-cut)) (not (cw ?x ?y)) )
+   )
+  (:action continue-splice-1
+   :parameters (?x ?y)
+   :precondition (and (splicing) (s-first ?x) (s-next ?x ?y))
+   :effect (and (s-first ?y) (splice-next ?x) (not (splicing)) (not (s-first ?x)) (not (s-next ?x ?y)))
+   )
+  (:action continue-splice-2
+   :parameters (?x ?y)
+   :precondition (and (splice-next ?x) (splice-point-1 ?y))
+   :effect (and (cw ?y ?x) (splice-point-1 ?x) (splicing) (not (splice-next ?x)) (not (splice-point-1 ?y)))
+   )
+  (:action end-splice-1
+   :parameters (?x ?y)
+   :precondition (and (splicing) (splice-point-1 ?y) (s-first ?x) (s-last ?x))
+   :effect (and (cw ?y ?x) (splice-point-1 ?x) (splicing-last) (not (splicing)) (not (s-first ?x)) (not (s-last ?x)) (not (splice-point-1 ?y)) )
+   )
+  (:action end-splice-2
+   :parameters (?x ?y)
+   :precondition (and (splicing-last) (splice-point-1 ?x) (splice-point-2 ?y))
+   :effect (and (finished) (cw ?x ?y) (not (splicing-last)) (not (splice-point-1 ?x)) (not (splice-point-2 ?y)) )
+   )
+  (:action begin-transverse-splice
+   :parameters (?x ?y)
+   :precondition (and (have-cut) (cw ?x ?y) (not (= ?x ?y)))
+   :effect (and (inverse-splicing) (splice-point-1 ?x) (splice-point-2 ?y) (increase (total-cost) 2) (not (have-cut)) (not (cw ?x ?y)))
+   )
+  (:action begin-inverse-splice
+   :parameters (?x ?y)
+   :precondition (and (have-cut) (cw ?x ?y) (last-cut-point ?x) (not (= ?x ?y)))
+   :effect (and (inverse-splicing) (splice-point-1 ?x) (splice-point-2 ?y) (increase (total-cost) 1) (not (have-cut)) (not (cw ?x ?y)) )
+   )
+  (:action begin-inverse-splice-special-case
+   :parameters (?x)
+   :precondition (and (have-cut) (cw ?x ?x) (last-cut-point ?x))
+   :effect (and (inverse-splicing) (splice-point-1 ?x) (splice-point-2 ?x) (increase (total-cost) 1) (not (have-cut)))
+  )
+  (:action continue-inverse-splice-1A
+   :parameters (?x ?y)
+   :precondition (and (inverse-splicing) (s-next ?y ?x) (s-last ?x) (normal ?x))
+   :effect (and (inverted ?x) (s-last ?y) (inverse-splice-next ?x) (not (inverse-splicing)) (not (s-next ?y ?x)) (not (s-last ?x)) (not (normal ?x)))
+   )
+  (:action continue-inverse-splice-1B
+   :parameters (?x ?y)
+   :precondition (and (inverse-splicing) (s-next ?y ?x) (s-last ?x) (inverted ?x))
+   :effect (and (normal ?x) (s-last ?y) (inverse-splice-next ?x) (not (inverse-splicing)) (not (s-next ?y ?x)) (not (s-last ?x)) (not (inverted ?x)))
+   )
+  (:action continue-inverse-splice-2
+   :parameters (?x ?y)
+   :precondition (and (inverse-splice-next ?x) (splice-point-1 ?y))
+   :effect (and (cw ?y ?x) (splice-point-1 ?x) (inverse-splicing) (not (inverse-splice-next ?x)) (not (splice-point-1 ?y)))
+   )
+  (:action end-inverse-splice-1A
+   :parameters (?x ?y)
+   :precondition (and (inverse-splicing) (splice-point-1 ?y) (s-first ?x) (s-last ?x) (normal ?x))
+   :effect (and (inverted ?x) (cw ?y ?x) (splice-point-1 ?x) (inverse-splicing-last) (not (inverse-splicing)) (not (splice-point-1 ?y)) (not (s-first ?x)) (not (s-last ?x)) (not (normal ?x)))
+   )
+  (:action end-inverse-splice-1B
+   :parameters (?x ?y)
+   :precondition (and (inverse-splicing) (splice-point-1 ?y) (s-first ?x) (s-last ?x) (inverted ?x))
+   :effect (and (normal ?x) (cw ?y ?x) (splice-point-1 ?x) (inverse-splicing-last) (not (inverse-splicing)) (not (splice-point-1 ?y)) (not (s-first ?x)) (not (s-last ?x)) (not (inverted ?x)) )
+   )
+  (:action end-inverse-splice-2
+   :parameters (?x ?y)
+   :precondition (and (inverse-splicing-last) (splice-point-1 ?x) (splice-point-2 ?y))
+   :effect (and (finished) (cw ?x ?y) (not (inverse-splicing-last)) (not (splice-point-1 ?x)) (not (splice-point-2 ?y)) )
+   )
+  (:action invert-single-gene-A
+   :parameters (?x)
+   :precondition (and (idle) (normal ?x))
+   :effect (and (inverted ?x) (increase (total-cost) 1) (not (normal ?x)))
+   )
+  (:action invert-single-gene-B
+   :parameters (?x)
+   :precondition (and (idle) (inverted ?x))
+   :effect (and (normal ?x) (increase (total-cost) 1) (not (inverted ?x)))
+   )
+  (:action reset-1
+   :parameters (?x)
+   :precondition (and (finished) (last-cut-point ?x))
+   :effect (and (idle) (not (finished)) (not (last-cut-point ?x)) )
+   )
+)
